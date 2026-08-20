@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GX STORE | Administración</title>
+
+  <!-- FAVICON PERSONALIZADO CON LOGO GX -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230f0f13'/><text x='50%25' y='55%25' font-family='sans-serif' font-weight='900' font-size='32' fill='%23e50914' text-anchor='middle' dominant-baseline='middle' letter-spacing='-1px'>GX</text></svg>">
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="navbar">
+    <a href="index.html" class="brand-gx">
+      <span class="gx-red">GX</span>
+      <span class="store-text">STORE</span>
+      <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-left:6px;">ADMIN</span>
+    </a>
+    <nav id="navUserActions" style="display:none;">
+      <a href="index.html" class="nav-link">Ver Tienda</a>
+      <button id="btnLogout" class="btn btn-secondary btn-sm" style="margin-left: 0.5rem;">Cerrar Sesión</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- LOGIN -->
+    <div id="loginSection" class="login-wrapper">
+      <div class="login-card">
+        <h1 style="font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem;">Panel Administrativo</h1>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Acceso exclusivo de administración</p>
+        <form id="loginForm">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="username">Usuario</label>
+            <input type="text" id="username" class="input-control" required autocomplete="username">
+          </div>
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" class="input-control" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Ingresar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardSection" style="display: none;">
+      <section class="admin-card" id="formCard">
+        <div class="admin-card-header">
+          <h2 id="formTitle">Ingresar Celular al Catálogo</h2>
+          <div id="editModeIndicator" style="display: none;" class="editing-banner">
+            <span>✏️ Editando Producto</span>
+            <button type="button" id="btnCancelEdit" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.6rem;">Cancelar</button>
+          </div>
+        </div>
+
+        <form id="productForm">
+          <input type="hidden" id="p_id" value="">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="p_marca">Marca *</label>
+              <input type="text" id="p_marca" class="input-control" placeholder="Apple, Samsung, Google..." required>
+            </div>
+            <div class="form-group">
+              <label for="p_nombre">Modelo *</label>
+              <input type="text" id="p_nombre" class="input-control" placeholder="ej. iPhone 14 Pro Max" required>
+            </div>
+            <div class="form-group">
+              <label for="p_almacenamiento">Almacenamiento</label>
+              <input type="text" id="p_almacenamiento" class="input-control" placeholder="ej. 128GB, 256GB, 512GB">
+            </div>
+            <div class="form-group">
+              <label for="p_precio">Precio ($ USD) *</label>
+              <input type="number" step="0.01" id="p_precio" class="input-control" placeholder="680.00" required>
+            </div>
+            <div class="form-group">
+              <label for="p_estado">Estado *</label>
+              <select id="p_estado" class="input-control" required>
+                <option value="Sellado">Sellado (Nuevo)</option>
+                <option value="Como nuevo">Como nuevo (Impecable)</option>
+                <option value="Excelente">Excelente (9.5/10)</option>
+                <option value="Buen estado">Buen estado (9/10)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="p_bateria">Salud de Batería</label>
+              <input type="text" id="p_bateria" class="input-control" placeholder="ej. 100% o 88%">
+            </div>
+          </div>
+
+          <!-- DROPZONE DE FOTOS -->
+          <div class="form-group" style="margin-bottom: 1.2rem;">
+            <label id="uploadLabel">Fotografías del Celular *</label>
+            <div class="image-upload-box" onclick="document.getElementById('p_imagenes').click()">
+              <p id="uploadPrompt" style="color: var(--text-secondary);">Haz clic para seleccionar una o varias fotos del celular</p>
+              <div id="previewsContainer" class="previews-grid"></div>
+              <input type="file" id="p_imagenes" style="display: none;" accept="image/*" multiple>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="p_descripcion">Descripción / Accesorios incluidos</label>
+            <textarea id="p_descripcion" class="input-control" placeholder="Incluye cargador original, protector instalado, libre de operadoras..."></textarea>
+          </div>
+
+          <button type="submit" id="btnSubmitProduct" class="btn btn-primary">Guardar y Publicar en GX Store</button>
+        </form>
+      </section>
+
+      <!-- INVENTARIO -->
+      <section class="admin-card">
+        <h2>Inventario en Línea</h2>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Foto</th>
+                <th>Equipo</th>
+                <th>Marca</th>
+                <th>Capacidad</th>
+                <th>Precio</th>
+                <th>Fotos</th>
+                <th>Estado</th>
+                <th>Batería</th>
+                <th>Visibilidad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
