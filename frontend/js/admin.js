@@ -1,5 +1,5 @@
-const API_URL = "http://localhost:8000/api";
-const BACKEND_BASE = "http://localhost:8000";
+const API_URL = "https://storegx-api.onrender.com/api";
+const BACKEND_BASE = "https://storegx-api.onrender.com";
 
 let inventario = [];
 
