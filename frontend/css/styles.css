@@ -915,4 +915,19 @@ body {
   .hero h1 {
     font-size: 2rem;
   }
+  }
+/* Ajustes para celulares pequeños */
+@media (max-width: 480px) {
+    .header-buttons, .header-container {
+        display: flex;
+        flex-wrap: wrap; /* Permite que bajen de fila si es necesario */
+        justify-content: center;
+        gap: 5px; /* Reduce el espacio entre botones */
+    }
+
+    /* Reduce tamaño de botones de redes */
+    .whatsapp-btn, .tiktok-btn {
+        padding: 4px 6px !important;
+        font-size: 11px !important;
+    }
 }
