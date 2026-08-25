@@ -10,6 +10,8 @@ let currentSelectedProduct = null;
 // DOM
 const searchInput = document.getElementById("searchInput");
 const brandFilter = document.getElementById("brandFilter");
+const conditionFilter = document.getElementById("conditionFilter");
+const priceFilter = document.getElementById("priceFilter");
 const productsGrid = document.getElementById("productsGrid");
 const loading = document.getElementById("loading");
 
@@ -76,23 +78,40 @@ function populateBrands() {
 
 function renderProducts() {
   if (!productsGrid) return;
+  
   const searchTerm = (searchInput?.value || "").toLowerCase().trim();
   const selectedBrand = brandFilter?.value || "";
+  const selectedCondition = conditionFilter?.value || "";
+  const selectedPrice = priceFilter?.value || "";
 
   const filtered = productos.filter(p => {
+    // 1. Filtro de Texto
     const matchText = (
       (p.nombre && p.nombre.toLowerCase().includes(searchTerm)) || 
       (p.marca && p.marca.toLowerCase().includes(searchTerm)) ||
       (p.almacenamiento && p.almacenamiento.toLowerCase().includes(searchTerm))
     );
+    
+    // 2. Filtro de Marca
     const matchBrand = selectedBrand === "" || p.marca === selectedBrand;
-    return matchText && matchBrand;
+    
+    // 3. Filtro de Estado Físico
+    const matchCondition = selectedCondition === "" || p.estado === selectedCondition;
+    
+    // 4. Filtro de Rango de Precio
+    let matchPrice = true;
+    if (selectedPrice === "0-300") matchPrice = p.precio < 300;
+    else if (selectedPrice === "300-600") matchPrice = p.precio >= 300 && p.precio <= 600;
+    else if (selectedPrice === "600-1000") matchPrice = p.precio > 600 && p.precio <= 1000;
+    else if (selectedPrice === "1000+") matchPrice = p.precio > 1000;
+
+    return matchText && matchBrand && matchCondition && matchPrice;
   });
 
   if (filtered.length === 0) {
     productsGrid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 4rem 0; color: var(--text-secondary);">
-        No se encontraron celulares con ese criterio de búsqueda.
+        No se encontraron celulares que coincidan con estos filtros.
       </div>
     `;
     return;
@@ -168,7 +187,6 @@ window.openProductModal = function(id) {
   if (modalStorage) modalStorage.textContent = item.almacenamiento || "—";
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
-
 
   // Configurar enlace dinámico de WhatsApp y el Registro de Clics Garantizado
   if (modalWaBtn) {
@@ -334,8 +352,11 @@ window.addEventListener("click", (e) => {
   }
 });
 
+// Escuchar cambios en TODOS los filtros
 if (searchInput) searchInput.addEventListener("input", renderProducts);
 if (brandFilter) brandFilter.addEventListener("change", renderProducts);
+if (conditionFilter) conditionFilter.addEventListener("change", renderProducts);
+if (priceFilter) priceFilter.addEventListener("change", renderProducts);
 
 // Soporta ?p=1-google-pixel-9-pro y compatibilidad con ?id=1
 function checkDeepLink() {
