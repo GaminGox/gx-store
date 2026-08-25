@@ -124,7 +124,7 @@ async function loadAdminInventory() {
 
 function renderTable(items) {
   if (items.length === 0) {
-    inventoryTableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; color: var(--text-muted);">No hay celulares registrados.</td></tr>`;
+    inventoryTableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; color: var(--text-muted);">No hay celulares registrados.</td></tr>`;
     return;
   }
 
@@ -148,6 +148,9 @@ function renderTable(items) {
         <td>
           <span class="status-dot ${p.disponible ? 'status-online' : 'status-offline'}"></span>
           ${p.disponible ? 'Activo' : 'Pausado'}
+        </td>
+        <td style="text-align:center; font-weight:bold; color:var(--success); font-size:1rem;">
+          ${p.clics_whatsapp || 0}
         </td>
         <td>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">

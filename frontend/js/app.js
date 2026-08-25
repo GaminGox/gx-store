@@ -169,10 +169,16 @@ window.openProductModal = function(id) {
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
-  // Configurar enlace dinámico de WhatsApp
+  // Configurar enlace dinámico de WhatsApp y el Registro de Clics
   if (modalWaBtn) {
     const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
     modalWaBtn.href = `https://wa.me/${WHATSAPP_PHONE}?text=${waText}`;
+    
+    // Registrar el clic al backend de forma invisible
+    modalWaBtn.onclick = () => {
+      fetch(`${API_URL}/productos/${item.id}/clic-whatsapp`, { method: "POST" })
+        .catch(err => console.error("Error al registrar clic:", err));
+    };
   }
 
   // BOTÓN COMPARTIR
