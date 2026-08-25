@@ -113,8 +113,13 @@
 
       <!-- COLUMNA DETALLES -->
       <div class="modal-info-col">
-        <span id="modalBrand" class="card-brand">MARCA</span>
-        <h2 id="modalTitle" style="font-size: 1.65rem; font-weight: 900; margin-top: 0.3rem;">Título</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+          <span id="modalBrand" class="card-brand">MARCA</span>
+          <button type="button" id="modalShareBtn" class="btn btn-sm btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; cursor: pointer;">
+            🔗 Compartir
+          </button>
+        </div>
+        <h2 id="modalTitle" style="font-size: 1.65rem; font-weight: 900; margin-top: 0;">Modelo</h2>
         <div id="modalPrice" class="modal-price">$0.00</div>
 
         <div class="modal-specs-grid">
@@ -218,6 +223,6 @@
     </div>
   </footer>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>

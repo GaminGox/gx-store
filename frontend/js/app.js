@@ -5,6 +5,7 @@ const WHATSAPP_PHONE = "593992641656";
 let productos = [];
 let currentImages = [];
 let currentImageIndex = 0;
+let currentSelectedProduct = null;
 
 // DOM
 const searchInput = document.getElementById("searchInput");
@@ -26,6 +27,7 @@ const modalStorage = document.getElementById("modalStorage");
 const modalBattery = document.getElementById("modalBattery");
 const modalDesc = document.getElementById("modalDesc");
 const modalWaBtn = document.getElementById("modalWaBtn");
+const modalShareBtn = document.getElementById("modalShareBtn");
 
 // Flechas
 const galleryPrevBtn = document.getElementById("galleryPrevBtn");
@@ -38,16 +40,20 @@ async function fetchProducts() {
     productos = await res.json();
     populateBrands();
     renderProducts();
+    checkDeepLink(); // Revisar si viene un enlace directo (?id=...)
   } catch (error) {
-    loading.innerHTML = `<p style="color: var(--danger);">No se pudo conectar con el catálogo de GX Store.</p>`;
+    if (loading) {
+      loading.innerHTML = `<p style="color: var(--danger);">No se pudo conectar con el catálogo de GX Store.</p>`;
+    }
   } finally {
-    loading.style.display = "none";
-    productsGrid.style.display = "grid";
+    if (loading) loading.style.display = "none";
+    if (productsGrid) productsGrid.style.display = "grid";
   }
 }
 
 function populateBrands() {
-  const brands = [...new Set(productos.map(p => p.marca.trim()))].sort();
+  if (!brandFilter) return;
+  const brands = [...new Set(productos.map(p => (p.marca ? p.marca.trim() : "")))].filter(Boolean).sort();
   brandFilter.innerHTML = '<option value="">Todas las marcas</option>';
   brands.forEach(brand => {
     const opt = document.createElement("option");
@@ -58,13 +64,14 @@ function populateBrands() {
 }
 
 function renderProducts() {
-  const searchTerm = searchInput.value.toLowerCase().trim();
-  const selectedBrand = brandFilter.value;
+  if (!productsGrid) return;
+  const searchTerm = (searchInput?.value || "").toLowerCase().trim();
+  const selectedBrand = brandFilter?.value || "";
 
   const filtered = productos.filter(p => {
     const matchText = (
-      p.nombre.toLowerCase().includes(searchTerm) || 
-      p.marca.toLowerCase().includes(searchTerm) ||
+      (p.nombre && p.nombre.toLowerCase().includes(searchTerm)) || 
+      (p.marca && p.marca.toLowerCase().includes(searchTerm)) ||
       (p.almacenamiento && p.almacenamiento.toLowerCase().includes(searchTerm))
     );
     const matchBrand = selectedBrand === "" || p.marca === selectedBrand;
@@ -82,7 +89,7 @@ function renderProducts() {
 
   productsGrid.innerHTML = filtered.map(item => {
     const firstImg = item.imagenes && item.imagenes.length > 0 ? item.imagenes[0] : '';
-    const imgPath = firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`;
+    const imgPath = firstImg ? (firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`) : 'https://placehold.co/400x400/14141a/ffffff?text=Sin+Foto';
     const totalFotos = item.imagenes ? item.imagenes.length : 0;
     const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
@@ -115,44 +122,64 @@ window.openProductModal = function(id) {
   const item = productos.find(p => p.id === id);
   if (!item) return;
 
+  currentSelectedProduct = item;
   currentImages = item.imagenes && item.imagenes.length > 0 ? item.imagenes : [];
   currentImageIndex = 0;
 
   updateModalImage();
 
   if (currentImages.length > 1) {
-    galleryPrevBtn.style.display = "flex";
-    galleryNextBtn.style.display = "flex";
-    modalThumbsGrid.style.display = "flex";
+    if (galleryPrevBtn) galleryPrevBtn.style.display = "flex";
+    if (galleryNextBtn) galleryNextBtn.style.display = "flex";
+    if (modalThumbsGrid) modalThumbsGrid.style.display = "flex";
   } else {
-    galleryPrevBtn.style.display = "none";
-    galleryNextBtn.style.display = "none";
-    modalThumbsGrid.style.display = "none";
+    if (galleryPrevBtn) galleryPrevBtn.style.display = "none";
+    if (galleryNextBtn) galleryNextBtn.style.display = "none";
+    if (modalThumbsGrid) modalThumbsGrid.style.display = "none";
   }
 
   renderThumbnails();
 
   const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
-  modalBrand.textContent = item.marca;
-  modalTitle.textContent = item.nombre;
-  modalPrice.textContent = formattedPrice;
-  modalCondition.textContent = item.estado;
-  modalStorage.textContent = item.almacenamiento || "—";
-  modalBattery.textContent = item.bateria_salud || "—";
-  modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
+  if (modalBrand) modalBrand.textContent = item.marca;
+  if (modalTitle) modalTitle.textContent = item.nombre;
+  if (modalPrice) modalPrice.textContent = formattedPrice;
+  if (modalCondition) modalCondition.textContent = item.estado;
+  if (modalStorage) modalStorage.textContent = item.almacenamiento || "—";
+  if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
+  if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
-  const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
-  modalWaBtn.href = `https://wa.me/${WHATSAPP_PHONE}?text=${waText}`;
+  // Configurar enlace dinámico de WhatsApp
+  if (modalWaBtn) {
+    const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
+    modalWaBtn.href = `https://wa.me/${WHATSAPP_PHONE}?text=${waText}`;
+  }
 
-  productModal.style.display = "flex";
+  // BOTÓN COMPARTIR LINK DIRECTO
+  if (modalShareBtn) {
+    modalShareBtn.onclick = (e) => {
+      e.stopPropagation();
+      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${item.id}`;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert(`¡Enlace directo al ${item.marca} ${item.nombre} copiado al portapapeles!`);
+      }).catch(() => {
+        prompt("Copia este enlace para compartir:", shareUrl);
+      });
+    };
+  }
+
+  if (productModal) productModal.style.display = "flex";
 };
 
 function updateModalImage() {
-  if (currentImages.length === 0) return;
+  if (currentImages.length === 0) {
+    if (modalMainImg) modalMainImg.src = 'https://placehold.co/600x600/14141a/ffffff?text=Sin+Foto';
+    return;
+  }
   const rawUrl = currentImages[currentImageIndex];
   const fullUrl = rawUrl.startsWith("http") ? rawUrl : `${BACKEND_BASE}${rawUrl}`;
-  modalMainImg.src = fullUrl;
+  if (modalMainImg) modalMainImg.src = fullUrl;
 
   document.querySelectorAll(".thumb-img").forEach((thumb, idx) => {
     thumb.classList.toggle("active", idx === currentImageIndex);
@@ -160,6 +187,7 @@ function updateModalImage() {
 }
 
 function renderThumbnails() {
+  if (!modalThumbsGrid) return;
   if (currentImages.length <= 1) {
     modalThumbsGrid.innerHTML = "";
     return;
@@ -181,54 +209,58 @@ window.selectImage = function(index) {
   updateModalImage();
 };
 
-// FLECHAS
-galleryPrevBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  if (currentImages.length <= 1) return;
-  currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
-  updateModalImage();
-});
+// FLECHAS GALERÍA
+if (galleryPrevBtn) {
+  galleryPrevBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (currentImages.length <= 1) return;
+    currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
+    updateModalImage();
+  });
+}
 
-galleryNextBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  if (currentImages.length <= 1) return;
-  currentImageIndex = (currentImageIndex + 1) % currentImages.length;
-  updateModalImage();
-});
+if (galleryNextBtn) {
+  galleryNextBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (currentImages.length <= 1) return;
+    currentImageIndex = (currentImageIndex + 1) % currentImages.length;
+    updateModalImage();
+  });
+}
 
 // GESTOS TOUCH (SWIPE) PARA CELULARES
 let touchStartX = 0;
 let touchEndX = 0;
 
-modalImgWrap.addEventListener("touchstart", (e) => {
-  touchStartX = e.changedTouches[0].screenX;
-}, { passive: true });
+if (modalImgWrap) {
+  modalImgWrap.addEventListener("touchstart", (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
 
-modalImgWrap.addEventListener("touchend", (e) => {
-  touchEndX = e.changedTouches[0].screenX;
-  handleSwipeGesture();
-}, { passive: true });
+  modalImgWrap.addEventListener("touchend", (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipeGesture();
+  }, { passive: true });
+}
 
 function handleSwipeGesture() {
   const swipeThreshold = 45;
   if (currentImages.length <= 1) return;
 
-  if (touchEndX < touchStartX - swipeThreshold) {
-    // Deslizamiento a la izquierda -> Siguiente foto
+  if (touchEndX < touchStartX - swipeThreshold && galleryNextBtn) {
     galleryNextBtn.click();
   }
-  if (touchEndX > touchStartX + swipeThreshold) {
-    // Deslizamiento a la derecha -> Foto anterior
+  if (touchEndX > touchStartX + swipeThreshold && galleryPrevBtn) {
     galleryPrevBtn.click();
   }
 }
 
 // TECLADO Y ATAJOS
 window.addEventListener("keydown", (e) => {
-  if (productModal.style.display === "flex") {
-    if (e.key === "ArrowLeft") {
+  if (productModal && productModal.style.display === "flex") {
+    if (e.key === "ArrowLeft" && galleryPrevBtn) {
       galleryPrevBtn.click();
-    } else if (e.key === "ArrowRight") {
+    } else if (e.key === "ArrowRight" && galleryNextBtn) {
       galleryNextBtn.click();
     } else if (e.key === "Escape") {
       productModal.style.display = "none";
@@ -241,9 +273,11 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-modalCloseBtn.addEventListener("click", () => {
-  productModal.style.display = "none";
-});
+if (modalCloseBtn) {
+  modalCloseBtn.addEventListener("click", () => {
+    if (productModal) productModal.style.display = "none";
+  });
+}
 
 window.addEventListener("click", (e) => {
   if (e.target === productModal) {
@@ -251,7 +285,19 @@ window.addEventListener("click", (e) => {
   }
 });
 
-searchInput.addEventListener("input", renderProducts);
-brandFilter.addEventListener("change", renderProducts);
+if (searchInput) searchInput.addEventListener("input", renderProducts);
+if (brandFilter) brandFilter.addEventListener("change", renderProducts);
+
+// Abrir celular automáticamente si la URL tiene ?id=X
+function checkDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const phoneId = params.get("id");
+  if (phoneId) {
+    const idNum = parseInt(phoneId, 10);
+    setTimeout(() => {
+      openProductModal(idNum);
+    }, 350);
+  }
+}
 
 document.addEventListener("DOMContentLoaded", fetchProducts);
