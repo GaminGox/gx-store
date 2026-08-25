@@ -113,7 +113,12 @@ btnLogout.addEventListener("click", () => {
 // INVENTARIO
 async function loadAdminInventory() {
   try {
-    const res = await fetch(`${API_URL}/productos`);
+    // TRUCO ANTI-CACHÉ: Le agregamos un número aleatorio a la URL para obligar al navegador a descargar datos frescos
+    const timestamp = new Date().getTime();
+    const res = await fetch(`${API_URL}/productos?_t=${timestamp}`, {
+        cache: "no-store" // Obliga a ignorar cualquier caché local
+    });
+    
     if (!res.ok) throw new Error("Error al cargar inventario");
     inventario = await res.json();
     renderTable(inventario);
@@ -149,7 +154,7 @@ function renderTable(items) {
           <span class="status-dot ${p.disponible ? 'status-online' : 'status-offline'}"></span>
           ${p.disponible ? 'Activo' : 'Pausado'}
         </td>
-        <td style="text-align:center; font-weight:bold; color:var(--success); font-size:1rem;">
+        <td style="text-align:center; font-weight:bold; color:var(--success); font-size:1.1rem;">
           ${p.clics_whatsapp || 0}
         </td>
         <td>
