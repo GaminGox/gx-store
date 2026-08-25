@@ -150,7 +150,7 @@ function renderTable(items) {
         <td>${p.marca}</td>
         <td><span class="badge badge-storage">${p.almacenamiento || '—'}</span></td>
         <td style="color: var(--accent-green); font-weight:800;">${formattedPrice}</td>
-        <td>${p.badge ? `<span class="badge" style="background:rgba(16,185,129,0.2); color:var(--accent-green); border:1px solid rgba(16,185,129,0.4);">${p.badge}</span>` : '—'}</td>
+        <td>${p.badge ? `<span class="badge" style="background:rgba(229,9,20,0.2); color:#ff4d58; border:1px solid rgba(229,9,20,0.4);">${p.badge}</span>` : '—'}</td>
         <td><span class="badge" style="background:#202028;">${cantFotos} fotos</span></td>
         <td>${p.estado}</td>
         <td>${p.bateria_salud || '—'}</td>

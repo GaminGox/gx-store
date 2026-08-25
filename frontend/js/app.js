@@ -69,7 +69,7 @@ function applyConfigToDOM() {
 
   // Actualizar todos los links fijos de WhatsApp
   document.querySelectorAll('a.whatsapp, a.btn-whatsapp-large').forEach(el => {
-    if (el.id !== "modalWaBtn") { // Excluimos el del modal porque se arma dinámico
+    if (el.id !== "modalWaBtn") { 
       el.href = `https://wa.me/${globalStoreConfig.whatsapp}`;
     }
   });
@@ -146,7 +146,7 @@ function renderProducts() {
       <article class="card" onclick="openProductModal(${item.id})">
         <div class="card-img-wrapper">
           <div class="badge-container">
-            ${item.badge ? `<span class="badge" style="background: var(--accent-green); color:#fff; box-shadow: 0 2px 8px var(--accent-green-glow);">${item.badge}</span>` : ''}
+            ${item.badge ? `<span class="badge" style="background: #e50914; color:#fff; box-shadow: 0 2px 8px rgba(229, 9, 20, 0.28);">${item.badge}</span>` : ''}
             <span class="badge badge-condition">${item.estado}</span>
             ${item.almacenamiento ? `<span class="badge badge-storage">💾 ${item.almacenamiento}</span>` : ''}
             ${item.bateria_salud ? `<span class="badge badge-battery">⚡ ${item.bateria_salud}</span>` : ''}
@@ -197,7 +197,7 @@ window.openProductModal = function(id) {
   const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
   if (modalBrand) {
-    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge" style="background: var(--accent-green); color:#fff; margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
+    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge" style="background: #e50914; color:#fff; margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
   }
   if (modalTitle) modalTitle.textContent = item.nombre;
   if (modalPrice) modalPrice.textContent = formattedPrice;
@@ -206,7 +206,7 @@ window.openProductModal = function(id) {
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
-  // WHATSAPP DINÁMICO (Toma el número de la configuración actual)
+  // WHATSAPP DINÁMICO
   if (modalWaBtn) {
     const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
     
@@ -376,7 +376,6 @@ function checkDeepLink() {
   }
 }
 
-// INICIAR TIENDA
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchStoreConfig();
   fetchProducts();
