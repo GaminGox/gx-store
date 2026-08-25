@@ -26,6 +26,14 @@ async def lifespan(app: FastAPI):
             conn.commit()
     except Exception:
         pass
+
+    # Auto-migración segura: agregar columna clics_whatsapp si no existe
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE productos ADD COLUMN clics_whatsapp INTEGER DEFAULT 0;"))
+            conn.commit()
+    except Exception:
+        pass
     
     db = SessionLocal()
     try:
@@ -92,6 +100,16 @@ def obtener_producto(producto_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return producto
 
+@app.post("/api/productos/{producto_id}/clic-whatsapp")
+def registrar_clic_whatsapp(producto_id: int, db: Session = Depends(get_db)):
+    producto = db.query(models.Producto).filter(models.Producto.id == producto_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    producto.clics_whatsapp += 1
+    db.commit()
+    return {"message": "Clic registrado exitosamente", "clics": producto.clics_whatsapp}
+
 # --- PRODUCTOS ADMINISTRACIÓN ---
 @app.post("/api/productos", response_model=schemas.ProductoOut, status_code=status.HTTP_201_CREATED)
 def crear_producto(
@@ -123,7 +141,8 @@ def crear_producto(
         badge=badge.strip() if badge else None,
         descripcion=descripcion.strip() if descripcion else None,
         imagenes=rutas_imagenes,
-        disponible=True
+        disponible=True,
+        clics_whatsapp=0
     )
     
     db.add(nuevo_producto)
