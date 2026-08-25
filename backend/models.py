@@ -19,6 +19,7 @@ class Producto(Base):
     estado = Column(String, nullable=False)
     almacenamiento = Column(String, nullable=True)
     bateria_salud = Column(String, nullable=True)
+    badge = Column(String, nullable=True, default="")
     descripcion = Column(String, nullable=True)
     imagenes = Column(JSON, nullable=False, default=list)
     disponible = Column(Boolean, default=True, nullable=False)

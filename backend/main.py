@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 import models
 import schemas
@@ -17,6 +18,14 @@ from utils import save_and_optimize_image, remove_multiple_images
 async def lifespan(app: FastAPI):
     os.makedirs("uploads", exist_ok=True)
     models.Base.metadata.create_all(bind=engine)
+    
+    # Auto-migración segura: agregar columna badge si no existe en la base de datos
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE productos ADD COLUMN badge VARCHAR;"))
+            conn.commit()
+    except Exception:
+        pass
     
     db = SessionLocal()
     try:
@@ -92,6 +101,7 @@ def crear_producto(
     estado: str = Form(...),
     almacenamiento: Optional[str] = Form(None),
     bateria_salud: Optional[str] = Form(None),
+    badge: Optional[str] = Form(None),
     descripcion: Optional[str] = Form(None),
     imagenes: List[UploadFile] = File(...),
     db: Session = Depends(get_db),
@@ -110,6 +120,7 @@ def crear_producto(
         estado=estado.strip(),
         almacenamiento=almacenamiento.strip() if almacenamiento else None,
         bateria_salud=bateria_salud.strip() if bateria_salud else None,
+        badge=badge.strip() if badge else None,
         descripcion=descripcion.strip() if descripcion else None,
         imagenes=rutas_imagenes,
         disponible=True
@@ -129,6 +140,7 @@ def actualizar_producto(
     estado: str = Form(...),
     almacenamiento: Optional[str] = Form(None),
     bateria_salud: Optional[str] = Form(None),
+    badge: Optional[str] = Form(None),
     descripcion: Optional[str] = Form(None),
     imagenes: Optional[List[UploadFile]] = File(None),
     db: Session = Depends(get_db),
@@ -144,6 +156,7 @@ def actualizar_producto(
     producto.estado = estado.strip()
     producto.almacenamiento = almacenamiento.strip() if almacenamiento else None
     producto.bateria_salud = bateria_salud.strip() if bateria_salud else None
+    producto.badge = badge.strip() if badge else None
     producto.descripcion = descripcion.strip() if descripcion else None
 
     # Si se suben nuevas fotos, reemplazar las existentes
