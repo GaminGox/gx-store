@@ -33,6 +33,17 @@ const modalShareBtn = document.getElementById("modalShareBtn");
 const galleryPrevBtn = document.getElementById("galleryPrevBtn");
 const galleryNextBtn = document.getElementById("galleryNextBtn");
 
+// Función auxiliar para convertir el título en formato URL amigable (slug)
+function createSlug(marca, nombre, almacenamiento) {
+  const text = `${marca || ''} ${nombre || ''} ${almacenamiento || ''}`;
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Elimina tildes
+    .replace(/[^a-z0-9]+/g, "-")     // Reemplaza símbolos y espacios por guiones
+    .replace(/^-+|-+$/g, "");        // Elimina guiones sobrantes al inicio y final
+}
+
 async function fetchProducts() {
   try {
     const res = await fetch(`${API_URL}/productos?disponibles_solo=false`);
@@ -40,7 +51,7 @@ async function fetchProducts() {
     productos = await res.json();
     populateBrands();
     renderProducts();
-    checkDeepLink(); // Abrir si viene enlace inicial
+    checkDeepLink(); // Revisar si viene un enlace directo
   } catch (error) {
     if (loading) {
       loading.innerHTML = `<p style="color: var(--danger);">No se pudo conectar con el catálogo de GX Store.</p>`;
@@ -117,7 +128,7 @@ function renderProducts() {
   }).join("");
 }
 
-// ABRIR MODAL Y ACTUALIZAR URL
+// ABRIR MODAL Y PERSONALIZAR URL CON SLUG
 window.openProductModal = function(id) {
   const item = productos.find(p => p.id === id);
   if (!item) return;
@@ -126,8 +137,9 @@ window.openProductModal = function(id) {
   currentImages = item.imagenes && item.imagenes.length > 0 ? item.imagenes : [];
   currentImageIndex = 0;
 
-  // Actualizar la URL del navegador automáticamente sin recargar
-  const newUrl = `${window.location.pathname}?id=${item.id}`;
+  // Generar URL personalizada legible
+  const slug = createSlug(item.marca, item.nombre, item.almacenamiento);
+  const newUrl = `${window.location.pathname}?p=${item.id}-${slug}`;
   window.history.pushState({ phoneId: item.id }, "", newUrl);
 
   updateModalImage();
@@ -166,9 +178,9 @@ window.openProductModal = function(id) {
       e.stopPropagation();
       const shareUrl = window.location.href;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        alert(`¡Enlace directo al ${item.marca} ${item.nombre} copiado al portapapeles!`);
+        alert(`¡Enlace copiado al portapapeles!\n${shareUrl}`);
       }).catch(() => {
-        prompt("Copia este enlace para compartir:", shareUrl);
+        prompt("Copia este enlace:", shareUrl);
       });
     };
   }
@@ -179,7 +191,6 @@ window.openProductModal = function(id) {
 // CERRAR MODAL Y LIMPIAR URL
 function closeModal() {
   if (productModal) productModal.style.display = "none";
-  // Limpiar el ?id= de la URL sin recargar
   window.history.pushState({}, "", window.location.pathname);
 }
 
@@ -286,9 +297,10 @@ window.addEventListener("keydown", (e) => {
 // Soporte para botón "Atrás" del navegador
 window.addEventListener("popstate", () => {
   const params = new URLSearchParams(window.location.search);
-  const phoneId = params.get("id");
-  if (phoneId) {
-    openProductModal(parseInt(phoneId, 10));
+  const param = params.get("p") || params.get("id");
+  if (param) {
+    const idNum = parseInt(param.split("-")[0], 10);
+    openProductModal(idNum);
   } else {
     if (productModal) productModal.style.display = "none";
   }
@@ -307,15 +319,17 @@ window.addEventListener("click", (e) => {
 if (searchInput) searchInput.addEventListener("input", renderProducts);
 if (brandFilter) brandFilter.addEventListener("change", renderProducts);
 
-// Abrir celular automáticamente si la URL tiene ?id=X
+// Soporta ?p=1-google-pixel-9-pro y compatibilidad con ?id=1
 function checkDeepLink() {
   const params = new URLSearchParams(window.location.search);
-  const phoneId = params.get("id");
-  if (phoneId) {
-    const idNum = parseInt(phoneId, 10);
-    setTimeout(() => {
-      openProductModal(idNum);
-    }, 350);
+  const param = params.get("p") || params.get("id");
+  if (param) {
+    const idNum = parseInt(param.split("-")[0], 10);
+    if (!isNaN(idNum)) {
+      setTimeout(() => {
+        openProductModal(idNum);
+      }, 350);
+    }
   }
 }
 
