@@ -376,7 +376,9 @@ body {
   color: var(--accent-red);
 }
 
-/* MODAL DE DETALLE Y GALERÍA */
+/* =========================================================
+   MODAL DE DETALLE Y GALERÍA (TOTALMENTE RESPONSIVO)
+   ========================================================= */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -398,8 +400,9 @@ body {
   border-radius: var(--radius-lg);
   max-width: 920px;
   width: 100%;
-  max-height: 92vh;
+  max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -410,7 +413,7 @@ body {
   position: absolute;
   top: 0.8rem;
   right: 0.8rem;
-  background: var(--bg-card);
+  background: rgba(20, 20, 26, 0.85);
   border: 1px solid var(--border);
   color: var(--text-main);
   width: 36px;
@@ -421,8 +424,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20;
+  z-index: 30;
   transition: var(--transition);
+  backdrop-filter: blur(6px);
 }
 
 .modal-close:hover {
@@ -438,11 +442,12 @@ body {
   flex-direction: column;
   gap: 1rem;
   position: relative;
+  width: 100%;
 }
 
 .modal-main-img-wrap {
   width: 100%;
-  height: 320px;
+  height: 340px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -496,7 +501,8 @@ body {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.3rem;
+  padding-bottom: 0.4rem;
+  width: 100%;
 }
 
 .thumb-img {
@@ -521,20 +527,21 @@ body {
   padding: 1.8rem;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .modal-price {
   font-size: 2rem;
   font-weight: 900;
   color: var(--accent-red);
-  margin: 0.5rem 0 1rem 0;
+  margin: 0.4rem 0 1rem 0;
 }
 
 .modal-specs-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .spec-item {
@@ -556,6 +563,60 @@ body {
   font-weight: 700;
   color: var(--text-main);
   margin-top: 2px;
+}
+
+/* SELLO DE VERIFICACIÓN GX */
+.gx-verified-box {
+  background: rgba(229, 9, 20, 0.05);
+  border: 1px solid rgba(229, 9, 20, 0.2);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.verified-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.verified-badge-icon {
+  background: var(--accent-red);
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.verified-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.verified-items-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.verified-check-item {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.verified-check-item span {
+  color: var(--accent-red);
+  font-weight: 800;
 }
 
 /* BOTONES */
@@ -629,10 +690,7 @@ body {
   width: 100%;
 }
 
-/* =========================================================
-   ESTILOS COMPLETOS DEL PANEL DE ADMINISTRACIÓN
-   ========================================================= */
-
+/* PANEL ADMIN */
 .admin-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
@@ -669,7 +727,6 @@ body {
   gap: 0.5rem;
 }
 
-/* Formulario en Grid ordenado */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -695,21 +752,6 @@ body {
   grid-column: 1 / -1;
 }
 
-.image-upload-box {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.8rem;
-  text-align: center;
-  background: var(--bg-card);
-  cursor: pointer;
-  transition: var(--transition);
-  width: 100%;
-}
-
-.image-upload-box:hover {
-  border-color: var(--accent-red);
-}
-
 .previews-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -717,15 +759,6 @@ body {
   margin-top: 1rem;
 }
 
-.preview-item {
-  width: 100%;
-  height: 80px;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
-  border: 1px solid var(--border);
-}
-
-/* TABLA DE INVENTARIO CONTROLADA Y RESPONSIVA */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -757,7 +790,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* REGLA CLAVE: Miniatura fija que no se desborda */
 .admin-table img, .table-thumb {
   width: 50px !important;
   height: 50px !important;
@@ -884,45 +916,114 @@ body {
   color: var(--accent-red);
 }
 
-/* RESPONSIVIDAD */
+/* =========================================================
+   REGLAS RESPONSIVAS PARA TABLETS Y CELULARES
+   ========================================================= */
 @media (max-width: 850px) {
-  .modal-content {
-    grid-template-columns: 1fr;
+  .modal-backdrop {
+    padding: 0.6rem;
   }
+  
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 94vh;
+  }
+  
+  .modal-gallery-col {
+    padding: 1.2rem 1rem;
+  }
+
+  .modal-main-img-wrap {
+    height: 280px;
+  }
+
+  .modal-info-col {
+    padding: 1.2rem 1rem;
+  }
+
   .modal-specs-grid {
     grid-template-columns: 1fr 1fr;
   }
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 1.8rem;
   }
+
   .hero h1 {
     font-size: 1.8rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 580px) {
   .navbar {
     padding: 0.75rem 1rem;
   }
+  
   .brand-gx .gx-red {
     font-size: 1.65rem;
   }
+  
   .brand-gx .store-text {
     font-size: 0.95rem;
   }
+  
   .badge-country {
     font-size: 0.65rem;
     padding: 1px 4px;
   }
+  
   .social-circle-btn {
     width: 34px;
     height: 34px;
   }
+  
   .social-circle-btn svg {
     width: 16px;
     height: 16px;
   }
+
+  .modal-backdrop {
+    padding: 0.35rem;
+  }
+
+  .modal-content {
+    max-height: 96vh;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-gallery-col {
+    padding: 0.85rem;
+  }
+
+  .modal-main-img-wrap {
+    height: 220px;
+  }
+
+  .thumb-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .modal-info-col {
+    padding: 1rem 0.85rem 1.4rem 0.85rem;
+  }
+
+  .modal-price {
+    font-size: 1.65rem;
+    margin: 0.3rem 0 0.8rem 0;
+  }
+
+  .modal-specs-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+
+  .verified-items-list {
+    grid-template-columns: 1fr;
+  }
+
   .admin-card {
     padding: 1.2rem;
   }
