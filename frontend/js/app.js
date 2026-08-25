@@ -40,7 +40,7 @@ async function fetchProducts() {
     productos = await res.json();
     populateBrands();
     renderProducts();
-    checkDeepLink(); // Revisar si viene un enlace directo (?id=...)
+    checkDeepLink(); // Abrir si viene enlace inicial
   } catch (error) {
     if (loading) {
       loading.innerHTML = `<p style="color: var(--danger);">No se pudo conectar con el catálogo de GX Store.</p>`;
@@ -117,7 +117,7 @@ function renderProducts() {
   }).join("");
 }
 
-// ABRIR MODAL
+// ABRIR MODAL Y ACTUALIZAR URL
 window.openProductModal = function(id) {
   const item = productos.find(p => p.id === id);
   if (!item) return;
@@ -125,6 +125,10 @@ window.openProductModal = function(id) {
   currentSelectedProduct = item;
   currentImages = item.imagenes && item.imagenes.length > 0 ? item.imagenes : [];
   currentImageIndex = 0;
+
+  // Actualizar la URL del navegador automáticamente sin recargar
+  const newUrl = `${window.location.pathname}?id=${item.id}`;
+  window.history.pushState({ phoneId: item.id }, "", newUrl);
 
   updateModalImage();
 
@@ -156,11 +160,11 @@ window.openProductModal = function(id) {
     modalWaBtn.href = `https://wa.me/${WHATSAPP_PHONE}?text=${waText}`;
   }
 
-  // BOTÓN COMPARTIR LINK DIRECTO
+  // BOTÓN COMPARTIR
   if (modalShareBtn) {
     modalShareBtn.onclick = (e) => {
       e.stopPropagation();
-      const shareUrl = `${window.location.origin}${window.location.pathname}?id=${item.id}`;
+      const shareUrl = window.location.href;
       navigator.clipboard.writeText(shareUrl).then(() => {
         alert(`¡Enlace directo al ${item.marca} ${item.nombre} copiado al portapapeles!`);
       }).catch(() => {
@@ -171,6 +175,13 @@ window.openProductModal = function(id) {
 
   if (productModal) productModal.style.display = "flex";
 };
+
+// CERRAR MODAL Y LIMPIAR URL
+function closeModal() {
+  if (productModal) productModal.style.display = "none";
+  // Limpiar el ?id= de la URL sin recargar
+  window.history.pushState({}, "", window.location.pathname);
+}
 
 function updateModalImage() {
   if (currentImages.length === 0) {
@@ -228,7 +239,7 @@ if (galleryNextBtn) {
   });
 }
 
-// GESTOS TOUCH (SWIPE) PARA CELULARES
+// GESTOS TOUCH (SWIPE)
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -263,25 +274,33 @@ window.addEventListener("keydown", (e) => {
     } else if (e.key === "ArrowRight" && galleryNextBtn) {
       galleryNextBtn.click();
     } else if (e.key === "Escape") {
-      productModal.style.display = "none";
+      closeModal();
     }
   }
 
-  // Atajo secreto al panel admin: Ctrl + Shift + A
   if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
     window.location.href = "admin.html";
   }
 });
 
-if (modalCloseBtn) {
-  modalCloseBtn.addEventListener("click", () => {
+// Soporte para botón "Atrás" del navegador
+window.addEventListener("popstate", () => {
+  const params = new URLSearchParams(window.location.search);
+  const phoneId = params.get("id");
+  if (phoneId) {
+    openProductModal(parseInt(phoneId, 10));
+  } else {
     if (productModal) productModal.style.display = "none";
-  });
+  }
+});
+
+if (modalCloseBtn) {
+  modalCloseBtn.addEventListener("click", closeModal);
 }
 
 window.addEventListener("click", (e) => {
   if (e.target === productModal) {
-    productModal.style.display = "none";
+    closeModal();
   }
 });
 
