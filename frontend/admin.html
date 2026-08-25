@@ -8,7 +8,7 @@
   <!-- FAVICON PERSONALIZADO CON LOGO GX -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230f0f13'/><text x='50%25' y='55%25' font-family='sans-serif' font-weight='900' font-size='32' fill='%23e50914' text-anchor='middle' dominant-baseline='middle' letter-spacing='-1px'>GX</text></svg>">
 
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=5">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -90,6 +90,16 @@
               <label for="p_bateria">Salud de Batería</label>
               <input type="text" id="p_bateria" class="input-control" placeholder="ej. 100% o 88%">
             </div>
+            <div class="form-group">
+              <label for="p_badge">Etiqueta Promocional (Badge)</label>
+              <select id="p_badge" class="input-control">
+                <option value="">Ninguna</option>
+                <option value="OFERTA 🔥">OFERTA 🔥</option>
+                <option value="ÚLTIMA UNIDAD ⚠️">ÚLTIMA UNIDAD ⚠️</option>
+                <option value="AGOTADO ❌">AGOTADO ❌</option>
+                <option value="MÁS VENDIDO ⭐">MÁS VENDIDO ⭐</option>
+              </select>
+            </div>
           </div>
 
           <!-- DROPZONE DE FOTOS -->
@@ -123,6 +133,7 @@
                 <th>Marca</th>
                 <th>Capacidad</th>
                 <th>Precio</th>
+                <th>Badge</th>
                 <th>Fotos</th>
                 <th>Estado</th>
                 <th>Batería</th>
@@ -139,6 +150,6 @@
 
   <div id="toast"></div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/admin.js?v=5"></script>
 </body>
 </html>

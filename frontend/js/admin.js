@@ -124,7 +124,7 @@ async function loadAdminInventory() {
 
 function renderTable(items) {
   if (items.length === 0) {
-    inventoryTableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color: var(--text-muted);">No hay celulares registrados.</td></tr>`;
+    inventoryTableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; color: var(--text-muted);">No hay celulares registrados.</td></tr>`;
     return;
   }
 
@@ -141,6 +141,7 @@ function renderTable(items) {
         <td>${p.marca}</td>
         <td><span class="badge badge-storage">${p.almacenamiento || '—'}</span></td>
         <td style="color: var(--accent-red); font-weight:800;">${formattedPrice}</td>
+        <td>${p.badge ? `<span class="badge" style="background:rgba(229,9,20,0.2); color:#ff4d58; border:1px solid rgba(229,9,20,0.4);">${p.badge}</span>` : '—'}</td>
         <td><span class="badge" style="background:#202028;">${cantFotos} fotos</span></td>
         <td>${p.estado}</td>
         <td>${p.bateria_salud || '—'}</td>
@@ -178,6 +179,7 @@ window.editProduct = function(id) {
   document.getElementById("p_precio").value = item.precio;
   document.getElementById("p_estado").value = item.estado;
   document.getElementById("p_bateria").value = item.bateria_salud || "";
+  document.getElementById("p_badge").value = item.badge || "";
   document.getElementById("p_descripcion").value = item.descripcion || "";
 
   formTitle.textContent = "Editar Celular";
@@ -241,6 +243,7 @@ productForm.addEventListener("submit", async (e) => {
   formData.append("precio", document.getElementById("p_precio").value);
   formData.append("estado", document.getElementById("p_estado").value);
   formData.append("bateria_salud", document.getElementById("p_bateria").value);
+  formData.append("badge", document.getElementById("p_badge")?.value || "");
   formData.append("descripcion", document.getElementById("p_descripcion").value);
 
   for (let i = 0; i < files.length; i++) {

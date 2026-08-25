@@ -108,6 +108,7 @@ function renderProducts() {
       <article class="card" onclick="openProductModal(${item.id})">
         <div class="card-img-wrapper">
           <div class="badge-container">
+            ${item.badge ? `<span class="badge" style="background: var(--accent-red); color:#fff; box-shadow: 0 2px 8px var(--accent-red-glow);">${item.badge}</span>` : ''}
             <span class="badge badge-condition">${item.estado}</span>
             ${item.almacenamiento ? `<span class="badge badge-storage">💾 ${item.almacenamiento}</span>` : ''}
             ${item.bateria_salud ? `<span class="badge badge-battery">⚡ ${item.bateria_salud}</span>` : ''}
@@ -158,7 +159,9 @@ window.openProductModal = function(id) {
 
   const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
-  if (modalBrand) modalBrand.textContent = item.marca;
+  if (modalBrand) {
+    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge" style="background: var(--accent-red); color:#fff; margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
+  }
   if (modalTitle) modalTitle.textContent = item.nombre;
   if (modalPrice) modalPrice.textContent = formattedPrice;
   if (modalCondition) modalCondition.textContent = item.estado;
