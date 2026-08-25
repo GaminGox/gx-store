@@ -169,17 +169,24 @@ window.openProductModal = function(id) {
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
+
   // Configurar enlace dinámico de WhatsApp y el Registro de Clics Garantizado
   if (modalWaBtn) {
     const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
-    modalWaBtn.href = `https://wa.me/${WHATSAPP_PHONE}?text=${waText}`;
     
-    // Registrar el clic (keepalive garantiza el envío)
-    modalWaBtn.onclick = () => {
-      fetch(`${API_URL}/productos/${item.id}/clic-whatsapp`, { 
-        method: "POST",
-        keepalive: true
-      }).catch(err => console.error("Error al registrar clic:", err));
+    // Le quitamos el href directo para controlarlo con JavaScript
+    modalWaBtn.removeAttribute("href");
+    
+    modalWaBtn.onclick = (e) => {
+      e.preventDefault(); // Evita que el navegador salte de inmediato
+      
+      // 1. Envía el clic al servidor
+      fetch(`${API_URL}/productos/${item.id}/clic-whatsapp`, { method: "POST" })
+        .catch(err => console.error("Error interno:", err))
+        .finally(() => {
+          // 2. Sin importar qué pase, abre WhatsApp enseguida en otra pestaña
+          window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${waText}`, "_blank");
+        });
     };
   }
 
