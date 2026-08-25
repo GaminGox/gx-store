@@ -49,6 +49,8 @@
 
     <!-- DASHBOARD -->
     <div id="dashboardSection" style="display: none;">
+      
+      <!-- FORMULARIO DE PRODUCTO -->
       <section class="admin-card" id="formCard">
         <div class="admin-card-header">
           <h2 id="formTitle">Ingresar Celular al Catálogo</h2>
@@ -138,7 +140,7 @@
                 <th>Estado</th>
                 <th>Batería</th>
                 <th>Visibilidad</th>
-                <th>Clics WA 💬</th> <!-- NUEVA COLUMNA -->
+                <th>Clics WA 💬</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -146,11 +148,36 @@
           </table>
         </div>
       </section>
+
+      <!-- CONFIGURACIÓN DE TIENDA (MARCA BLANCA) -->
+      <section class="admin-card" style="margin-top: 2rem;">
+        <div class="admin-card-header">
+          <h2>⚙️ Configuración de la Tienda (Marca Blanca)</h2>
+        </div>
+        <form id="configForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="c_whatsapp">Número de WhatsApp (ej: 593992641656)</label>
+              <input type="text" id="c_whatsapp" class="input-control" required>
+            </div>
+            <div class="form-group">
+              <label for="c_tiktok">Enlace de TikTok</label>
+              <input type="url" id="c_tiktok" class="input-control" required>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+            <label for="c_mensaje">Mensaje de Bienvenida de la Tienda</label>
+            <textarea id="c_mensaje" class="input-control" rows="3" required></textarea>
+          </div>
+          <button type="submit" id="btnSubmitConfig" class="btn btn-primary">Guardar Configuración de la Tienda</button>
+        </form>
+      </section>
+
     </div>
   </main>
 
   <div id="toast"></div>
 
-  <script src="js/admin.js?v=6"></script>
+  <script src="js/admin.js?v=7"></script>
 </body>
 </html>

@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     os.makedirs("uploads", exist_ok=True)
     models.Base.metadata.create_all(bind=engine)
     
-    # Auto-migración segura: agregar columna badge si no existe en la base de datos
+    # Auto-migración segura: agregar columna badge y clics si no existen
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN badge VARCHAR;"))
@@ -27,7 +27,6 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
-    # Auto-migración segura: agregar columna clics_whatsapp si no existe
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN clics_whatsapp INTEGER DEFAULT 0;"))
@@ -44,6 +43,13 @@ async def lifespan(app: FastAPI):
                 hashed_password=auth.get_password_hash("admin123")
             )
             db.add(default_admin)
+            db.commit()
+            
+        # Crear la configuración por defecto si la tabla está vacía
+        config = db.query(models.Configuracion).first()
+        if not config:
+            default_config = models.Configuracion()
+            db.add(default_config)
             db.commit()
     finally:
         db.close()
@@ -79,6 +85,26 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = auth.create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
+# --- CONFIGURACIÓN DE LA TIENDA ---
+@app.get("/api/configuracion", response_model=schemas.ConfiguracionOut)
+def obtener_configuracion(db: Session = Depends(get_db)):
+    config = db.query(models.Configuracion).first()
+    return config
+
+@app.put("/api/configuracion", response_model=schemas.ConfiguracionOut)
+def actualizar_configuracion(
+    datos: schemas.ConfiguracionUpdate,
+    db: Session = Depends(get_db),
+    admin: models.Usuario = Depends(auth.get_current_admin)
+):
+    config = db.query(models.Configuracion).first()
+    config.whatsapp = datos.whatsapp.strip()
+    config.tiktok = datos.tiktok.strip()
+    config.mensaje_anuncio = datos.mensaje_anuncio.strip()
+    db.commit()
+    db.refresh(config)
+    return config
+
 # --- PRODUCTOS PÚBLICOS ---
 @app.get("/api/productos", response_model=List[schemas.ProductoOut])
 def listar_productos(
@@ -106,7 +132,7 @@ def registrar_clic_whatsapp(producto_id: int, db: Session = Depends(get_db)):
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     
-    producto.clics_whatsapp += 1
+    producto.clics_whatsapp = (producto.clics_whatsapp or 0) + 1
     db.commit()
     return {"message": "Clic registrado exitosamente", "clics": producto.clics_whatsapp}
 

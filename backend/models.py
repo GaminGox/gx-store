@@ -25,3 +25,11 @@ class Producto(Base):
     disponible = Column(Boolean, default=True, nullable=False)
     clics_whatsapp = Column(Integer, default=0, nullable=True)
     fecha_creacion = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+class Configuracion(Base):
+    __tablename__ = "configuracion"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    whatsapp = Column(String, default="593992641656", nullable=False)
+    tiktok = Column(String, default="https://www.tiktok.com/@store_gx", nullable=False)
+    mensaje_anuncio = Column(String, default="Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador.", nullable=False)
