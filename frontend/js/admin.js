@@ -13,13 +13,20 @@ const btnSubmitProduct = document.getElementById("btnSubmitProduct");
 const inventoryTableBody = document.getElementById("inventoryTableBody");
 const toast = document.getElementById("toast");
 
-// Elementos de edición
+// Elementos de edición de productos
 const formCard = document.getElementById("formCard");
 const formTitle = document.getElementById("formTitle");
 const editModeIndicator = document.getElementById("editModeIndicator");
 const btnCancelEdit = document.getElementById("btnCancelEdit");
 const pId = document.getElementById("p_id");
 const uploadLabel = document.getElementById("uploadLabel");
+
+// Elementos de configuración de tienda
+const configForm = document.getElementById("configForm");
+const cWhatsapp = document.getElementById("c_whatsapp");
+const cTiktok = document.getElementById("c_tiktok");
+const cMensaje = document.getElementById("c_mensaje");
+const btnSubmitConfig = document.getElementById("btnSubmitConfig");
 
 // Multi-preview
 const pImagenes = document.getElementById("p_imagenes");
@@ -49,7 +56,7 @@ pImagenes.addEventListener("change", function () {
 
 function showToast(message, isError = false) {
   toast.textContent = message;
-  toast.style.borderColor = isError ? "var(--danger)" : "var(--accent-red)";
+  toast.style.borderColor = isError ? "var(--danger)" : "var(--accent-green)";
   toast.style.display = "block";
   setTimeout(() => {
     toast.style.display = "none";
@@ -67,6 +74,7 @@ function checkAuthState() {
     dashboardSection.style.display = "block";
     navUserActions.style.display = "flex";
     loadAdminInventory();
+    loadStoreConfig(); // Cargar la configuración de marca blanca
   } else {
     loginSection.style.display = "flex";
     dashboardSection.style.display = "none";
@@ -113,12 +121,8 @@ btnLogout.addEventListener("click", () => {
 // INVENTARIO
 async function loadAdminInventory() {
   try {
-    // TRUCO ANTI-CACHÉ: Le agregamos un número aleatorio a la URL para obligar al navegador a descargar datos frescos
     const timestamp = new Date().getTime();
-    const res = await fetch(`${API_URL}/productos?_t=${timestamp}`, {
-        cache: "no-store" // Obliga a ignorar cualquier caché local
-    });
-    
+    const res = await fetch(`${API_URL}/productos?_t=${timestamp}`, { cache: "no-store" });
     if (!res.ok) throw new Error("Error al cargar inventario");
     inventario = await res.json();
     renderTable(inventario);
@@ -145,8 +149,8 @@ function renderTable(items) {
         <td><strong>${p.nombre}</strong></td>
         <td>${p.marca}</td>
         <td><span class="badge badge-storage">${p.almacenamiento || '—'}</span></td>
-        <td style="color: var(--accent-red); font-weight:800;">${formattedPrice}</td>
-        <td>${p.badge ? `<span class="badge" style="background:rgba(229,9,20,0.2); color:#ff4d58; border:1px solid rgba(229,9,20,0.4);">${p.badge}</span>` : '—'}</td>
+        <td style="color: var(--accent-green); font-weight:800;">${formattedPrice}</td>
+        <td>${p.badge ? `<span class="badge" style="background:rgba(16,185,129,0.2); color:var(--accent-green); border:1px solid rgba(16,185,129,0.4);">${p.badge}</span>` : '—'}</td>
         <td><span class="badge" style="background:#202028;">${cantFotos} fotos</span></td>
         <td>${p.estado}</td>
         <td>${p.bateria_salud || '—'}</td>
@@ -175,7 +179,7 @@ function renderTable(items) {
   }).join("");
 }
 
-// EDITAR PRODUCTO (CARGAR EN FORMULARIO)
+// EDITAR PRODUCTO
 window.editProduct = function(id) {
   const item = inventario.find(p => p.id === id);
   if (!item) return;
@@ -196,7 +200,6 @@ window.editProduct = function(id) {
   uploadLabel.textContent = "Reemplazar Fotografías (Opcional)";
   uploadPrompt.textContent = "Deja vacío para conservar las fotos actuales, o sube nuevas para reemplazarlas";
 
-  // Previsualizar fotos actuales
   previewsContainer.innerHTML = "";
   if (item.imagenes) {
     item.imagenes.forEach(url => {
@@ -211,7 +214,6 @@ window.editProduct = function(id) {
   formCard.scrollIntoView({ behavior: "smooth" });
 };
 
-// CANCELAR EDICIÓN
 btnCancelEdit.addEventListener("click", () => {
   resetFormState();
 });
@@ -227,7 +229,6 @@ function resetFormState() {
   previewsContainer.innerHTML = "";
 }
 
-// GUARDAR O ACTUALIZAR
 productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const token = getToken();
@@ -289,7 +290,6 @@ productForm.addEventListener("submit", async (e) => {
   }
 });
 
-// ALTERNAR ESTADO
 window.toggleAvailability = async function(id) {
   const token = getToken();
   try {
@@ -304,7 +304,6 @@ window.toggleAvailability = async function(id) {
   }
 };
 
-// ELIMINAR
 window.deleteProduct = async function(id) {
   if (!confirm("¿Deseas eliminar definitivamente este celular y todas sus fotos?")) return;
   const token = getToken();
@@ -321,5 +320,54 @@ window.deleteProduct = async function(id) {
     showToast(error.message, true);
   }
 };
+
+// --- LÓGICA DE CONFIGURACIÓN DE TIENDA ---
+async function loadStoreConfig() {
+  try {
+    const res = await fetch(`${API_URL}/configuracion`);
+    if (res.ok) {
+      const config = await res.json();
+      cWhatsapp.value = config.whatsapp || "";
+      cTiktok.value = config.tiktok || "";
+      cMensaje.value = config.mensaje_anuncio || "";
+    }
+  } catch (error) {
+    console.error("No se pudo cargar la configuración:", error);
+  }
+}
+
+configForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const token = getToken();
+  if (!token) return checkAuthState();
+
+  btnSubmitConfig.disabled = true;
+  btnSubmitConfig.textContent = "Guardando...";
+
+  const configData = {
+    whatsapp: cWhatsapp.value,
+    tiktok: cTiktok.value,
+    mensaje_anuncio: cMensaje.value
+  };
+
+  try {
+    const res = await fetch(`${API_URL}/configuracion`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(configData)
+    });
+
+    if (!res.ok) throw new Error("Error al guardar configuración");
+    showToast("Configuración de tienda actualizada exitosamente");
+  } catch (error) {
+    showToast(error.message, true);
+  } finally {
+    btnSubmitConfig.disabled = false;
+    btnSubmitConfig.textContent = "Guardar Configuración de la Tienda";
+  }
+});
 
 document.addEventListener("DOMContentLoaded", checkAuthState);

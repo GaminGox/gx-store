@@ -1,11 +1,17 @@
 const API_URL = "https://storegx-api.onrender.com/api";
 const BACKEND_BASE = "https://storegx-api.onrender.com";
-const WHATSAPP_PHONE = "593992641656";
 
 let productos = [];
 let currentImages = [];
 let currentImageIndex = 0;
 let currentSelectedProduct = null;
+
+// Configuración global de la tienda (valores por defecto)
+let globalStoreConfig = {
+  whatsapp: "593992641656",
+  tiktok: "https://www.tiktok.com/@store_gx",
+  mensaje_anuncio: "Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador."
+};
 
 // DOM
 const searchInput = document.getElementById("searchInput");
@@ -33,17 +39,48 @@ const modalShareBtn = document.getElementById("modalShareBtn");
 const galleryPrevBtn = document.getElementById("galleryPrevBtn");
 const galleryNextBtn = document.getElementById("galleryNextBtn");
 
-// Función auxiliar para convertir el título en formato URL amigable (slug)
 function createSlug(marca, nombre, almacenamiento) {
   const text = `${marca || ''} ${nombre || ''} ${almacenamiento || ''}`;
   return text
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Elimina tildes
-    .replace(/[^a-z0-9]+/g, "-")     // Reemplaza símbolos y espacios por guiones
-    .replace(/^-+|-+$/g, "");        // Elimina guiones sobrantes al inicio y final
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
+// 1. OBTENER CONFIGURACIÓN ANTES QUE NADA
+async function fetchStoreConfig() {
+  try {
+    const res = await fetch(`${API_URL}/configuracion`);
+    if (res.ok) {
+      globalStoreConfig = await res.json();
+      applyConfigToDOM();
+    }
+  } catch (error) {
+    console.error("Usando configuración local por defecto.");
+  }
+}
+
+// 2. APLICAR LA CONFIGURACIÓN A LA PÁGINA
+function applyConfigToDOM() {
+  const heroDesc = document.querySelector(".hero p");
+  if (heroDesc) heroDesc.textContent = globalStoreConfig.mensaje_anuncio;
+
+  // Actualizar todos los links fijos de WhatsApp
+  document.querySelectorAll('a.whatsapp, a.btn-whatsapp-large').forEach(el => {
+    if (el.id !== "modalWaBtn") { // Excluimos el del modal porque se arma dinámico
+      el.href = `https://wa.me/${globalStoreConfig.whatsapp}`;
+    }
+  });
+
+  // Actualizar links de TikTok
+  document.querySelectorAll('a.tiktok, a[href*="tiktok.com"]').forEach(el => {
+    el.href = globalStoreConfig.tiktok;
+  });
+}
+
+// 3. OBTENER PRODUCTOS
 async function fetchProducts() {
   try {
     const res = await fetch(`${API_URL}/productos?disponibles_solo=false`);
@@ -51,7 +88,7 @@ async function fetchProducts() {
     productos = await res.json();
     populateBrands();
     renderProducts();
-    checkDeepLink(); // Revisar si viene un enlace directo
+    checkDeepLink();
   } catch (error) {
     if (loading) {
       loading.innerHTML = `<p style="color: var(--danger);">No se pudo conectar con el catálogo de GX Store.</p>`;
@@ -86,9 +123,7 @@ function renderProducts() {
       (p.marca && p.marca.toLowerCase().includes(searchTerm)) ||
       (p.almacenamiento && p.almacenamiento.toLowerCase().includes(searchTerm))
     );
-    
     const matchBrand = selectedBrand === "" || p.marca === selectedBrand;
-
     return matchText && matchBrand;
   });
 
@@ -111,7 +146,7 @@ function renderProducts() {
       <article class="card" onclick="openProductModal(${item.id})">
         <div class="card-img-wrapper">
           <div class="badge-container">
-            ${item.badge ? `<span class="badge" style="background: var(--accent-red); color:#fff; box-shadow: 0 2px 8px var(--accent-red-glow);">${item.badge}</span>` : ''}
+            ${item.badge ? `<span class="badge" style="background: var(--accent-green); color:#fff; box-shadow: 0 2px 8px var(--accent-green-glow);">${item.badge}</span>` : ''}
             <span class="badge badge-condition">${item.estado}</span>
             ${item.almacenamiento ? `<span class="badge badge-storage">💾 ${item.almacenamiento}</span>` : ''}
             ${item.bateria_salud ? `<span class="badge badge-battery">⚡ ${item.bateria_salud}</span>` : ''}
@@ -132,7 +167,7 @@ function renderProducts() {
   }).join("");
 }
 
-// ABRIR MODAL Y PERSONALIZAR URL CON SLUG
+// ABRIR MODAL
 window.openProductModal = function(id) {
   const item = productos.find(p => p.id === id);
   if (!item) return;
@@ -141,7 +176,6 @@ window.openProductModal = function(id) {
   currentImages = item.imagenes && item.imagenes.length > 0 ? item.imagenes : [];
   currentImageIndex = 0;
 
-  // Generar URL personalizada legible
   const slug = createSlug(item.marca, item.nombre, item.almacenamiento);
   const newUrl = `${window.location.pathname}?p=${item.id}-${slug}`;
   window.history.pushState({ phoneId: item.id }, "", newUrl);
@@ -163,7 +197,7 @@ window.openProductModal = function(id) {
   const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
   if (modalBrand) {
-    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge" style="background: var(--accent-red); color:#fff; margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
+    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge" style="background: var(--accent-green); color:#fff; margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
   }
   if (modalTitle) modalTitle.textContent = item.nombre;
   if (modalPrice) modalPrice.textContent = formattedPrice;
@@ -172,27 +206,22 @@ window.openProductModal = function(id) {
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
-  // Configurar enlace dinámico de WhatsApp y el Registro de Clics Garantizado
+  // WHATSAPP DINÁMICO (Toma el número de la configuración actual)
   if (modalWaBtn) {
     const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
     
-    // Le quitamos el href directo para controlarlo con JavaScript
     modalWaBtn.removeAttribute("href");
     
     modalWaBtn.onclick = (e) => {
-      e.preventDefault(); // Evita que el navegador salte de inmediato
-      
-      // 1. Envía el clic al servidor
+      e.preventDefault();
       fetch(`${API_URL}/productos/${item.id}/clic-whatsapp`, { method: "POST" })
         .catch(err => console.error("Error interno:", err))
         .finally(() => {
-          // 2. Sin importar qué pase, abre WhatsApp enseguida en otra pestaña
-          window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${waText}`, "_blank");
+          window.open(`https://wa.me/${globalStoreConfig.whatsapp}?text=${waText}`, "_blank");
         });
     };
   }
 
-  // BOTÓN COMPARTIR
   if (modalShareBtn) {
     modalShareBtn.onclick = (e) => {
       e.stopPropagation();
@@ -208,7 +237,6 @@ window.openProductModal = function(id) {
   if (productModal) productModal.style.display = "flex";
 };
 
-// CERRAR MODAL Y LIMPIAR URL
 function closeModal() {
   if (productModal) productModal.style.display = "none";
   window.history.pushState({}, "", window.location.pathname);
@@ -251,7 +279,6 @@ window.selectImage = function(index) {
   updateModalImage();
 };
 
-// FLECHAS GALERÍA
 if (galleryPrevBtn) {
   galleryPrevBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -270,7 +297,6 @@ if (galleryNextBtn) {
   });
 }
 
-// GESTOS TOUCH (SWIPE)
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -297,7 +323,6 @@ function handleSwipeGesture() {
   }
 }
 
-// TECLADO Y ATAJOS
 window.addEventListener("keydown", (e) => {
   if (productModal && productModal.style.display === "flex") {
     if (e.key === "ArrowLeft" && galleryPrevBtn) {
@@ -314,7 +339,6 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-// Soporte para botón "Atrás" del navegador
 window.addEventListener("popstate", () => {
   const params = new URLSearchParams(window.location.search);
   const param = params.get("p") || params.get("id");
@@ -336,11 +360,9 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// Escuchar cambios en los filtros restantes
 if (searchInput) searchInput.addEventListener("input", renderProducts);
 if (brandFilter) brandFilter.addEventListener("change", renderProducts);
 
-// Soporta ?p=1-google-pixel-9-pro y compatibilidad con ?id=1
 function checkDeepLink() {
   const params = new URLSearchParams(window.location.search);
   const param = params.get("p") || params.get("id");
@@ -354,4 +376,8 @@ function checkDeepLink() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", fetchProducts);
+// INICIAR TIENDA
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchStoreConfig();
+  fetchProducts();
+});
