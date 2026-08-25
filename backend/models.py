@@ -23,4 +23,5 @@ class Producto(Base):
     descripcion = Column(String, nullable=True)
     imagenes = Column(JSON, nullable=False, default=list)
     disponible = Column(Boolean, default=True, nullable=False)
+    clics_whatsapp = Column(Integer, default=0, nullable=True)
     fecha_creacion = Column(DateTime, default=datetime.utcnow, nullable=False)
