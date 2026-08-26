@@ -118,6 +118,17 @@ btnLogout.addEventListener("click", () => {
   showToast("Sesión cerrada");
 });
 
+// ASIGNAR JERARQUÍA DE IMPORTANCIA A LAS ETIQUETAS
+function getBadgePriority(badge) {
+  if (!badge) return 4;
+  const b = badge.toUpperCase();
+  if (b.includes("OFERTA")) return 1;
+  if (b.includes("ÚLTIMA UNIDAD") || b.includes("ULTIMA UNIDAD")) return 2;
+  if (b.includes("MÁS VENDIDO") || b.includes("MAS VENDIDO")) return 3;
+  if (b.includes("AGOTADO")) return 5;
+  return 4;
+}
+
 // INVENTARIO
 async function loadAdminInventory() {
   try {
@@ -137,9 +148,27 @@ function renderTable(items) {
     return;
   }
 
-  inventoryTableBody.innerHTML = items.map(p => {
+  // ORDENAMIENTO POR RELEVANCIA COMERCIAL
+  const sortedItems = [...items].sort((a, b) => {
+    const aAgotado = (a.badge && a.badge.toUpperCase().includes("AGOTADO")) || !a.disponible;
+    const bAgotado = (b.badge && b.badge.toUpperCase().includes("AGOTADO")) || !b.disponible;
+
+    if (aAgotado && !bAgotado) return 1;
+    if (!aAgotado && bAgotado) return -1;
+
+    const priorityA = getBadgePriority(a.badge);
+    const priorityB = getBadgePriority(b.badge);
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
+  });
+
+  inventoryTableBody.innerHTML = sortedItems.map(p => {
     const firstImg = p.imagenes && p.imagenes.length > 0 ? p.imagenes[0] : '';
-    const imgPath = firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`;
+    const imgPath = firstImg ? (firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`) : 'https://placehold.co/400x400/14141a/ffffff?text=Sin+Foto';
     const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(p.precio);
     const cantFotos = p.imagenes ? p.imagenes.length : 0;
 

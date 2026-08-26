@@ -111,13 +111,24 @@ function populateBrands() {
   });
 }
 
+// ASIGNAR JERARQUÍA DE IMPORTANCIA A LAS ETIQUETAS
+function getBadgePriority(badge) {
+  if (!badge) return 4; // Producto regular sin etiqueta
+  const b = badge.toUpperCase();
+  if (b.includes("OFERTA")) return 1;
+  if (b.includes("ÚLTIMA UNIDAD") || b.includes("ULTIMA UNIDAD")) return 2;
+  if (b.includes("MÁS VENDIDO") || b.includes("MAS VENDIDO")) return 3;
+  if (b.includes("AGOTADO")) return 5;
+  return 4; // Cualquier otra etiqueta general
+}
+
 function renderProducts() {
   if (!productsGrid) return;
   
   const searchTerm = (searchInput?.value || "").toLowerCase().trim();
   const selectedBrand = brandFilter?.value || "";
 
-  const filtered = productos.filter(p => {
+  let filtered = productos.filter(p => {
     const matchText = (
       (p.nombre && p.nombre.toLowerCase().includes(searchTerm)) || 
       (p.marca && p.marca.toLowerCase().includes(searchTerm)) ||
@@ -125,6 +136,27 @@ function renderProducts() {
     );
     const matchBrand = selectedBrand === "" || p.marca === selectedBrand;
     return matchText && matchBrand;
+  });
+
+  // ORDENAMIENTO POR RELEVANCIA COMERCIAL
+  filtered.sort((a, b) => {
+    // 1. Si uno está agotado o no disponible, va al final
+    const aAgotado = (a.badge && a.badge.toUpperCase().includes("AGOTADO")) || !a.disponible;
+    const bAgotado = (b.badge && b.badge.toUpperCase().includes("AGOTADO")) || !b.disponible;
+
+    if (aAgotado && !bAgotado) return 1;
+    if (!aAgotado && bAgotado) return -1;
+
+    // 2. Ordenar por prioridad de etiqueta (Oferta > Última Unidad > Más Vendido > Normal)
+    const priorityA = getBadgePriority(a.badge);
+    const priorityB = getBadgePriority(b.badge);
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // 3. Desempate: Más reciente primero
+    return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
   });
 
   if (filtered.length === 0) {
