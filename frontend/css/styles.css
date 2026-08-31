@@ -284,6 +284,33 @@ body {
   transform: scale(1.06);
 }
 
+/* ESTILO PARA PRODUCTO AGOTADO */
+.card-img-dimmed {
+  opacity: 0.38;
+  filter: grayscale(85%);
+}
+
+.soldout-center-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(229, 9, 20, 0.92);
+  color: #fff;
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(229, 9, 20, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 5;
+  pointer-events: none;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
 .badge-container {
   position: absolute;
   top: 10px;
@@ -657,6 +684,18 @@ body {
   background-color: #22bf5b;
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
   transform: translateY(-2px);
+}
+
+/* ESTILO PARA BOTÓN CUANDO ESTÁ AGOTADO */
+.btn-soldout-large {
+  background-color: #1a1a24;
+  color: #78788a;
+  border: 1px solid var(--border);
+  cursor: not-allowed;
+  font-size: 0.95rem;
+  padding: 0.9rem;
+  pointer-events: none;
+  opacity: 0.85;
 }
 
 .btn-secondary {
