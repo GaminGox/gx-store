@@ -38,6 +38,34 @@ body {
   flex-direction: column;
 }
 
+/* =========================================
+   BARRA DE PROMOCIÓN FLASH
+   ========================================= */
+.flash-promo-bar {
+  background: linear-gradient(90deg, #e50914, #ff1f2a, #e50914);
+  background-size: 200% auto;
+  color: #fff;
+  text-align: center;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  animation: gradientMove 3s linear infinite;
+  border-bottom: 1px solid #ff1f2a;
+}
+
+.flash-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
 /* NAVBAR */
 .navbar {
   background-color: rgba(15, 15, 19, 0.85);
@@ -163,10 +191,6 @@ body {
   line-height: 1.2;
 }
 
-.hero h1 span {
-  color: var(--accent-green);
-}
-
 .hero p {
   color: var(--text-secondary);
   font-size: 1rem;
@@ -179,7 +203,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.85rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .trust-item {
@@ -206,6 +230,51 @@ body {
   font-size: 0.72rem;
   color: var(--text-secondary);
 }
+
+/* =========================================
+   MÉTODOS DE PAGO BANNER CORPORATIVO
+   ========================================= */
+.payment-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.payment-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.payment-icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pay-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pay-pill.cash { background: #10b981; color: #000; }
+.pay-pill.pichincha { background: #fde000; color: #0f265c; }
+.pay-pill.deuna { background: #e61d2b; color: #fff; }
+.pay-pill.guayaquil { background: #e3006f; color: #fff; }
+.pay-pill.produbanco { background: #004b87; color: #fff; border-left: 4px solid #a1c028; }
+.pay-pill.cards { background: #1f2937; color: #f5f5f7; border: 1px solid #374151; }
 
 /* FILTROS */
 .filter-bar {
@@ -237,7 +306,9 @@ body {
   box-shadow: 0 0 0 3px var(--accent-green-glow);
 }
 
-/* GRID DE PRODUCTOS */
+/* =========================================
+   GRID DE PRODUCTOS Y TARJETAS LIMPIAS
+   ========================================= */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -284,7 +355,6 @@ body {
   transform: scale(1.06);
 }
 
-/* ESTILO PARA PRODUCTO AGOTADO */
 .card-img-dimmed {
   opacity: 0.38;
   filter: grayscale(85%);
@@ -345,25 +415,10 @@ body {
   letter-spacing: 0.5px;
 }
 
-.badge-condition {
-  background-color: rgba(15, 15, 19, 0.9);
-  color: var(--text-main);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(4px);
-}
-
-.badge-storage {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  backdrop-filter: blur(4px);
-}
-
-.badge-battery {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: var(--success);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  backdrop-filter: blur(4px);
+.badge-highlight {
+  background: #e50914;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.28);
 }
 
 .card-content {
@@ -388,6 +443,28 @@ body {
   color: var(--text-main);
 }
 
+/* ESPECIFICACIONES REUBICADAS (CLEAN DESIGN) */
+.card-specs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 10px 0;
+}
+
+.spec-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.spec-pill.condition { color: var(--text-main); }
+.spec-pill.storage { color: #60a5fa; background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.2); }
+.spec-pill.battery { color: var(--accent-green); background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.2); }
+
 .card-footer {
   display: flex;
   align-items: center;
@@ -403,9 +480,55 @@ body {
   color: var(--accent-green);
 }
 
-/* =========================================================
-   MODAL DE DETALLE Y GALERÍA (TOTALMENTE RESPONSIVO)
-   ========================================================= */
+/* =========================================
+   SKELETON LOADERS (EFECTO SHIMMER)
+   ========================================= */
+.skeleton-card {
+  pointer-events: none;
+  background-color: var(--bg-card);
+}
+
+.skeleton-img {
+  width: 100%;
+  padding-top: 100%;
+  background-color: #1a1a24;
+}
+
+.skeleton-line {
+  background-color: #1a1a24;
+  border-radius: 4px;
+}
+
+.skeleton-pill-row {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0 10px 0;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* =========================================
+   MODAL DE DETALLE Y GALERÍA 
+   ========================================= */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -592,7 +715,6 @@ body {
   margin-top: 2px;
 }
 
-/* SELLO DE VERIFICACIÓN GX */
 .gx-verified-box {
   background: var(--accent-green-soft);
   border: 1px solid rgba(16, 185, 129, 0.2);
@@ -646,7 +768,7 @@ body {
   font-weight: 800;
 }
 
-/* BOTONES */
+/* BOTONES GENERALES */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -686,7 +808,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* ESTILO PARA BOTÓN CUANDO ESTÁ AGOTADO */
 .btn-soldout-large {
   background-color: #1a1a24;
   color: #78788a;
@@ -709,6 +830,13 @@ body {
   border-color: var(--border-focus);
 }
 
+/* Efecto hover específico para el botón Compartir */
+.share-btn:hover {
+  background: var(--bg-card);
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
 .btn-danger {
   background-color: rgba(239, 68, 68, 0.15);
   color: #ef4444;
@@ -729,7 +857,9 @@ body {
   width: 100%;
 }
 
-/* PANEL ADMIN */
+/* =========================================
+   PANEL ADMIN (HEREDADO Y ESTILIZADO)
+   ========================================= */
 .admin-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border);

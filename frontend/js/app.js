@@ -49,7 +49,35 @@ function createSlug(marca, nombre, almacenamiento) {
     .replace(/^-+|-+$/g, "");
 }
 
-// 1. OBTENER CONFIGURACIÓN ANTES QUE NADA
+// INYECCIÓN DE SKELETON LOADERS
+function renderSkeletons() {
+  if (!productsGrid) return;
+  productsGrid.style.display = "grid";
+  if (loading) loading.style.display = "none";
+
+  const skeletonHTML = Array(6).fill(0).map(() => `
+    <div class="card skeleton-card">
+      <div class="skeleton-img shimmer"></div>
+      <div class="card-content">
+        <div class="skeleton-line shimmer" style="width: 30%; height: 12px; margin-bottom: 8px;"></div>
+        <div class="skeleton-line shimmer" style="width: 85%; height: 20px; margin-bottom: 12px;"></div>
+        <div class="skeleton-pill-row">
+          <div class="skeleton-line shimmer" style="width: 28%; height: 22px; border-radius: 4px;"></div>
+          <div class="skeleton-line shimmer" style="width: 28%; height: 22px; border-radius: 4px;"></div>
+          <div class="skeleton-line shimmer" style="width: 28%; height: 22px; border-radius: 4px;"></div>
+        </div>
+        <div class="card-footer" style="margin-top: 14px;">
+          <div class="skeleton-line shimmer" style="width: 40%; height: 24px;"></div>
+          <div class="skeleton-line shimmer" style="width: 35%; height: 32px; border-radius: 6px;"></div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  productsGrid.innerHTML = skeletonHTML;
+}
+
+// 1. OBTENER CONFIGURACIÓN
 async function fetchStoreConfig() {
   try {
     const res = await fetch(`${API_URL}/configuracion`);
@@ -58,30 +86,29 @@ async function fetchStoreConfig() {
       applyConfigToDOM();
     }
   } catch (error) {
-    console.error("Usando configuración local por defecto.");
+    console.warn("Usando configuración local por defecto.");
   }
 }
 
-// 2. APLICAR LA CONFIGURACIÓN A LA PÁGINA
+// 2. APLICAR CONFIGURACIÓN AL DOM
 function applyConfigToDOM() {
   const heroDesc = document.querySelector(".hero p");
   if (heroDesc) heroDesc.textContent = globalStoreConfig.mensaje_anuncio;
 
-  // Actualizar todos los links fijos de WhatsApp
-  document.querySelectorAll('a.whatsapp, a.btn-whatsapp-large').forEach(el => {
+  document.querySelectorAll('a.whatsapp, a.btn-whatsapp-large, .social-circle-btn.whatsapp').forEach(el => {
     if (el.id !== "modalWaBtn") { 
       el.href = `https://wa.me/${globalStoreConfig.whatsapp}`;
     }
   });
 
-  // Actualizar links de TikTok
-  document.querySelectorAll('a.tiktok, a[href*="tiktok.com"]').forEach(el => {
+  document.querySelectorAll('a.tiktok, a[href*="tiktok.com"], .social-circle-btn.tiktok').forEach(el => {
     el.href = globalStoreConfig.tiktok;
   });
 }
 
 // 3. OBTENER PRODUCTOS
 async function fetchProducts() {
+  renderSkeletons();
   try {
     const res = await fetch(`${API_URL}/productos?disponibles_solo=false`);
     if (!res.ok) throw new Error("Error al obtener catálogo");
@@ -90,12 +117,14 @@ async function fetchProducts() {
     renderProducts();
     checkDeepLink();
   } catch (error) {
-    if (loading) {
-      loading.innerHTML = `<p style="color: var(--danger);">No se pudo conectar con el catálogo de GX Store.</p>`;
+    if (productsGrid) {
+      productsGrid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: #ef4444;">
+          <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">No se pudo conectar con el catálogo de GX Store.</p>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">El servidor se está iniciando o actualizando. Intenta recargar en unos segundos.</p>
+        </div>
+      `;
     }
-  } finally {
-    if (loading) loading.style.display = "none";
-    if (productsGrid) productsGrid.style.display = "grid";
   }
 }
 
@@ -111,7 +140,6 @@ function populateBrands() {
   });
 }
 
-// ASIGNAR JERARQUÍA DE IMPORTANCIA A LAS ETIQUETAS
 function getBadgePriority(badge) {
   if (!badge) return 4;
   const b = badge.toUpperCase();
@@ -122,6 +150,7 @@ function getBadgePriority(badge) {
   return 4;
 }
 
+// RENDERIZADO LIMPIO DE PRODUCTOS
 function renderProducts() {
   if (!productsGrid) return;
   
@@ -138,7 +167,6 @@ function renderProducts() {
     return matchText && matchBrand;
   });
 
-  // ORDENAMIENTO POR RELEVANCIA COMERCIAL
   filtered.sort((a, b) => {
     const aAgotado = (a.badge && a.badge.toUpperCase().includes("AGOTADO")) || !a.disponible;
     const bAgotado = (b.badge && b.badge.toUpperCase().includes("AGOTADO")) || !b.disponible;
@@ -158,8 +186,9 @@ function renderProducts() {
 
   if (filtered.length === 0) {
     productsGrid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; padding: 4rem 0; color: var(--text-secondary);">
-        No se encontraron celulares con ese criterio de búsqueda.
+      <div style="grid-column: 1/-1; text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
+        <div style="font-size: 2.2rem; margin-bottom: 0.8rem;">🔍</div>
+        <p style="font-weight: 600;">No se encontraron celulares con ese criterio de búsqueda.</p>
       </div>
     `;
     return;
@@ -167,7 +196,7 @@ function renderProducts() {
 
   productsGrid.innerHTML = filtered.map(item => {
     const firstImg = item.imagenes && item.imagenes.length > 0 ? item.imagenes[0] : '';
-    const imgPath = firstImg ? (firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`) : 'https://placehold.co/400x400/14141a/ffffff?text=Sin+Foto';
+    const imgPath = firstImg ? (firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`) : 'https://placehold.co/500x500/14141a/ffffff?text=Sin+Foto';
     const totalFotos = item.imagenes ? item.imagenes.length : 0;
     const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
@@ -177,21 +206,28 @@ function renderProducts() {
       <article class="card" onclick="openProductModal(${item.id})">
         <div class="card-img-wrapper">
           ${isAgotado ? `<div class="soldout-center-badge">AGOTADO ❌</div>` : ''}
-          <div class="badge-container">
-            ${item.badge && !isAgotado ? `<span class="badge" style="background: #e50914; color:#fff; box-shadow: 0 2px 8px rgba(229, 9, 20, 0.28);">${item.badge}</span>` : ''}
-            <span class="badge badge-condition">${item.estado}</span>
-            ${item.almacenamiento ? `<span class="badge badge-storage">💾 ${item.almacenamiento}</span>` : ''}
-            ${item.bateria_salud ? `<span class="badge badge-battery">⚡ ${item.bateria_salud}</span>` : ''}
-          </div>
-          ${totalFotos > 1 ? `<div class="badge-count">📷 ${totalFotos} fotos</div>` : ''}
+          ${item.badge && !isAgotado ? `
+            <div class="badge-container">
+              <span class="badge badge-highlight">${item.badge}</span>
+            </div>
+          ` : ''}
+          ${totalFotos > 1 ? `<div class="badge-count">📷 ${totalFotos}</div>` : ''}
           <img class="card-img ${isAgotado ? 'card-img-dimmed' : ''}" src="${imgPath}" alt="${item.nombre}" loading="lazy">
         </div>
         <div class="card-content">
           <span class="card-brand">${item.marca}</span>
           <h3 class="card-title">${item.nombre}</h3>
+          
+          <!-- ESPECIFICACIONES INTEGRADAS Y LIMPIAS -->
+          <div class="card-specs-row">
+            ${item.estado ? `<span class="spec-pill condition">${item.estado}</span>` : ''}
+            ${item.almacenamiento ? `<span class="spec-pill storage">💾 ${item.almacenamiento}</span>` : ''}
+            ${item.bateria_salud ? `<span class="spec-pill battery">⚡ ${item.bateria_salud}</span>` : ''}
+          </div>
+
           <div class="card-footer">
             <span class="card-price" style="${isAgotado ? 'color: var(--text-muted);' : ''}">${formattedPrice}</span>
-            <span class="btn btn-secondary btn-sm">${isAgotado ? 'Ver fotos' : 'Ver detalles'}</span>
+            <span class="btn btn-secondary btn-sm">${isAgotado ? 'Ver detalles' : 'Ver equipo'}</span>
           </div>
         </div>
       </article>
@@ -231,19 +267,19 @@ window.openProductModal = function(id) {
   const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
 
   if (modalBrand) {
-    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge" style="background: #e50914; color:#fff; margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
+    modalBrand.innerHTML = `${item.marca} ${item.badge ? `<span class="badge badge-highlight" style="margin-left: 6px; font-size: 0.65rem;">${item.badge}</span>` : ''}`;
   }
   if (modalTitle) modalTitle.textContent = item.nombre;
   if (modalPrice) {
     modalPrice.textContent = formattedPrice;
-    modalPrice.style.color = isAgotado ? "var(--text-muted)" : "var(--accent-green)";
+    modalPrice.style.color = isAgotado ? "var(--text-muted)" : "var(--accent-red)";
   }
-  if (modalCondition) modalCondition.textContent = item.estado;
+  if (modalCondition) modalCondition.textContent = item.estado || "Garantizado";
   if (modalStorage) modalStorage.textContent = item.almacenamiento || "—";
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
-  // BOTÓN DE ACCIÓN DINÁMICO (AGOTADO VS WHATSAPP)
+  // BOTÓN COMPRAR WHATSAPP
   if (modalWaBtn) {
     if (isAgotado) {
       modalWaBtn.className = "btn btn-soldout-large btn-full";
@@ -254,18 +290,18 @@ window.openProductModal = function(id) {
       modalWaBtn.className = "btn btn-whatsapp-large btn-full";
       modalWaBtn.innerHTML = `
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.19.53-1.09 1.04-1.54 1.1-.42.06-.97.09-2.79-.66-2.33-.96-3.83-3.34-3.95-3.5-.12-.15-.95-1.26-.95-2.4 0-1.15.6-1.71.82-1.94.21-.23.47-.29.62-.29.16 0 .31.01.45.01.14 0 .34-.05.53.4.19.46.66 1.6.72 1.72.06.12.1.26.02.42-.08.16-.12.26-.24.4-.12.14-.25.31-.36.42-.12.12-.24.25-.1.5.14.24.62 1.02 1.33 1.65.91.81 1.68 1.06 1.92 1.18.24.12.38.1.52-.06.14-.16.6-.7.76-.94.16-.24.32-.2.53-.12.21.08 1.33.63 1.56.74.23.12.38.17.44.27.06.1.06.58-.13 1.11z"/>
         </svg>
-        Comprar ahora el dispositivo
+        <span>Comprar por WhatsApp</span>
       `;
       
-      const waText = encodeURIComponent(`Hola GX Store, quiero comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) por ${formattedPrice}.`);
+      const waText = encodeURIComponent(`Hola GX Store 🇪🇨, me interesa comprar el ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) publicado a ${formattedPrice}. ¿Sigue disponible?`);
       modalWaBtn.removeAttribute("href");
       
       modalWaBtn.onclick = (e) => {
         e.preventDefault();
         fetch(`${API_URL}/productos/${item.id}/clic-whatsapp`, { method: "POST" })
-          .catch(err => console.error("Error interno:", err))
+          .catch(() => {})
           .finally(() => {
             window.open(`https://wa.me/${globalStoreConfig.whatsapp}?text=${waText}`, "_blank");
           });
@@ -273,20 +309,39 @@ window.openProductModal = function(id) {
     }
   }
 
+  // BOTÓN DE COMPARTIR NATIVO (WEB SHARE API)
   if (modalShareBtn) {
-    modalShareBtn.onclick = (e) => {
+    modalShareBtn.onclick = async (e) => {
       e.stopPropagation();
       const shareUrl = window.location.href;
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        alert(`¡Enlace copiado al portapapeles!\n${shareUrl}`);
-      }).catch(() => {
-        prompt("Copia este enlace:", shareUrl);
-      });
+      const shareData = {
+        title: `${item.marca} ${item.nombre} | GX STORE`,
+        text: `Mira este ${item.marca} ${item.nombre} (${item.almacenamiento || ''}) en GX Store por solo ${formattedPrice}:`,
+        url: shareUrl
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          if (err.name !== 'AbortError') copyToClipboard(shareUrl);
+        }
+      } else {
+        copyToClipboard(shareUrl);
+      }
     };
   }
 
   if (productModal) productModal.style.display = "flex";
 };
+
+function copyToClipboard(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    alert(`¡Enlace copiado al portapapeles!\n${url}`);
+  }).catch(() => {
+    prompt("Copia este enlace:", url);
+  });
+}
 
 function closeModal() {
   if (productModal) productModal.style.display = "none";
@@ -348,6 +403,7 @@ if (galleryNextBtn) {
   });
 }
 
+// SWIPE TÁCTIL PARA CELULARES EN EL MODAL
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -374,6 +430,7 @@ function handleSwipeGesture() {
   }
 }
 
+// ACCESOS POR TECLADO
 window.addEventListener("keydown", (e) => {
   if (productModal && productModal.style.display === "flex") {
     if (e.key === "ArrowLeft" && galleryPrevBtn) {
