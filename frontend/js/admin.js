@@ -13,7 +13,6 @@ const btnSubmitProduct = document.getElementById("btnSubmitProduct");
 const inventoryTableBody = document.getElementById("inventoryTableBody");
 const toast = document.getElementById("toast");
 
-// Elementos de edición de productos
 const formCard = document.getElementById("formCard");
 const formTitle = document.getElementById("formTitle");
 const editModeIndicator = document.getElementById("editModeIndicator");
@@ -21,14 +20,14 @@ const btnCancelEdit = document.getElementById("btnCancelEdit");
 const pId = document.getElementById("p_id");
 const uploadLabel = document.getElementById("uploadLabel");
 
-// Elementos de configuración de tienda
 const configForm = document.getElementById("configForm");
 const cWhatsapp = document.getElementById("c_whatsapp");
 const cTiktok = document.getElementById("c_tiktok");
 const cMensaje = document.getElementById("c_mensaje");
+const cPromoActivo = document.getElementById("c_promo_activo");
+const cPromoTexto = document.getElementById("c_promo_texto");
 const btnSubmitConfig = document.getElementById("btnSubmitConfig");
 
-// Multi-preview
 const pImagenes = document.getElementById("p_imagenes");
 const previewsContainer = document.getElementById("previewsContainer");
 const uploadPrompt = document.getElementById("uploadPrompt");
@@ -38,7 +37,7 @@ pImagenes.addEventListener("change", function () {
   previewsContainer.innerHTML = "";
   
   if (files.length > 0) {
-    uploadPrompt.textContent = `${files.length} nueva(s) foto(s) seleccionada(s) (Clic para cambiar)`;
+    uploadPrompt.textContent = `${files.length} nueva(s) foto(s) seleccionada(s)`;
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = function (e) {
@@ -74,7 +73,7 @@ function checkAuthState() {
     dashboardSection.style.display = "block";
     navUserActions.style.display = "flex";
     loadAdminInventory();
-    loadStoreConfig(); // Cargar la configuración de marca blanca
+    loadStoreConfig(); 
   } else {
     loginSection.style.display = "flex";
     dashboardSection.style.display = "none";
@@ -111,14 +110,12 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
-// LOGOUT
 btnLogout.addEventListener("click", () => {
   localStorage.removeItem("gx_token");
   checkAuthState();
   showToast("Sesión cerrada");
 });
 
-// ASIGNAR JERARQUÍA DE IMPORTANCIA A LAS ETIQUETAS
 function getBadgePriority(badge) {
   if (!badge) return 4;
   const b = badge.toUpperCase();
@@ -148,21 +145,14 @@ function renderTable(items) {
     return;
   }
 
-  // ORDENAMIENTO POR RELEVANCIA COMERCIAL
   const sortedItems = [...items].sort((a, b) => {
     const aAgotado = (a.badge && a.badge.toUpperCase().includes("AGOTADO")) || !a.disponible;
     const bAgotado = (b.badge && b.badge.toUpperCase().includes("AGOTADO")) || !b.disponible;
-
     if (aAgotado && !bAgotado) return 1;
     if (!aAgotado && bAgotado) return -1;
-
     const priorityA = getBadgePriority(a.badge);
     const priorityB = getBadgePriority(b.badge);
-
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-
+    if (priorityA !== priorityB) return priorityA - priorityB;
     return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
   });
 
@@ -192,15 +182,9 @@ function renderTable(items) {
         </td>
         <td>
           <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-            <button onclick="editProduct(${p.id})" class="btn btn-secondary btn-sm">
-              Editar
-            </button>
-            <button onclick="toggleAvailability(${p.id})" class="btn btn-secondary btn-sm">
-              ${p.disponible ? 'Pausar' : 'Activar'}
-            </button>
-            <button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-sm">
-              Borrar
-            </button>
+            <button onclick="editProduct(${p.id})" class="btn btn-secondary btn-sm">Editar</button>
+            <button onclick="toggleAvailability(${p.id})" class="btn btn-secondary btn-sm">${p.disponible ? 'Pausar' : 'Activar'}</button>
+            <button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-sm">Borrar</button>
           </div>
         </td>
       </tr>
@@ -359,6 +343,8 @@ async function loadStoreConfig() {
       cWhatsapp.value = config.whatsapp || "";
       cTiktok.value = config.tiktok || "";
       cMensaje.value = config.mensaje_anuncio || "";
+      cPromoActivo.checked = config.promo_flash_activo || false;
+      cPromoTexto.value = config.promo_flash_texto || "";
     }
   } catch (error) {
     console.error("No se pudo cargar la configuración:", error);
@@ -376,7 +362,9 @@ configForm.addEventListener("submit", async (e) => {
   const configData = {
     whatsapp: cWhatsapp.value,
     tiktok: cTiktok.value,
-    mensaje_anuncio: cMensaje.value
+    mensaje_anuncio: cMensaje.value,
+    promo_flash_activo: cPromoActivo.checked,
+    promo_flash_texto: cPromoTexto.value
   };
 
   try {
@@ -395,7 +383,7 @@ configForm.addEventListener("submit", async (e) => {
     showToast(error.message, true);
   } finally {
     btnSubmitConfig.disabled = false;
-    btnSubmitConfig.textContent = "Guardar Configuración de la Tienda";
+    btnSubmitConfig.textContent = "Guardar Configuración General";
   }
 });
 

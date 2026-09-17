@@ -31,6 +31,8 @@ class ConfiguracionOut(BaseModel):
     whatsapp: str
     tiktok: str
     mensaje_anuncio: str
+    promo_flash_activo: Optional[bool] = False
+    promo_flash_texto: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -39,3 +41,5 @@ class ConfiguracionUpdate(BaseModel):
     whatsapp: str
     tiktok: str
     mensaje_anuncio: str
+    promo_flash_activo: Optional[bool] = False
+    promo_flash_texto: Optional[str] = None

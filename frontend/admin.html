@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GX STORE | Administración</title>
 
-  <!-- FAVICON PERSONALIZADO CON LOGO GX (VERDE ESMERALDA) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230f0f13'/><text x='50%25' y='55%25' font-family='sans-serif' font-weight='900' font-size='32' fill='%2310b981' text-anchor='middle' dominant-baseline='middle' letter-spacing='-1px'>GX</text></svg>">
 
-  <link rel="stylesheet" href="css/styles.css?v=10">
+  <link rel="stylesheet" href="css/styles.css?v=11">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -22,8 +21,8 @@
       <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-left:6px;">ADMIN</span>
     </a>
     <nav id="navUserActions" style="display:none;">
-      <a href="index.html" class="nav-link">Ver Tienda</a>
-      <button id="btnLogout" class="btn btn-secondary btn-sm" style="margin-left: 0.5rem;">Cerrar Sesión</button>
+      <a href="index.html" class="nav-link" target="_blank" style="color: var(--text-main); text-decoration: none; font-size: 0.9rem; margin-right: 1rem;">Ver Tienda ↗</a>
+      <button id="btnLogout" class="btn btn-secondary btn-sm">Cerrar Sesión</button>
     </nav>
   </header>
 
@@ -56,7 +55,7 @@
           <h2 id="formTitle">Ingresar Celular al Catálogo</h2>
           <div id="editModeIndicator" style="display: none;" class="editing-banner">
             <span>✏️ Editando Producto</span>
-            <button type="button" id="btnCancelEdit" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.6rem;">Cancelar</button>
+            <button type="button" id="btnCancelEdit" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.6rem; background: transparent; border-color: rgba(255,255,255,0.3); color: #fff;">Cancelar</button>
           </div>
         </div>
 
@@ -152,9 +151,23 @@
       <!-- CONFIGURACIÓN DE TIENDA (MARCA BLANCA) -->
       <section class="admin-card" style="margin-top: 2rem;">
         <div class="admin-card-header">
-          <h2>⚙️ Configuración de la Tienda (Marca Blanca)</h2>
+          <h2>⚙️ Configuración de la Tienda</h2>
         </div>
         <form id="configForm">
+          
+          <div style="background: rgba(229, 9, 20, 0.05); border: 1px solid rgba(229, 9, 20, 0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+                <input type="checkbox" id="c_promo_activo" style="width: 18px; height: 18px; accent-color: var(--accent-green);">
+                <span style="font-weight: 800; color: #fff;">Activar Barra de Promoción Flash Superior ⚡</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="c_promo_texto" style="color: var(--text-secondary);">Texto de la Promoción Animada</label>
+              <input type="text" id="c_promo_texto" class="input-control" placeholder="Ej: ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy.">
+            </div>
+          </div>
+
           <div class="form-grid">
             <div class="form-group">
               <label for="c_whatsapp">Número de WhatsApp (ej: 593992641656)</label>
@@ -167,9 +180,9 @@
           </div>
           <div class="form-group" style="margin-top: 1rem; margin-bottom: 1.5rem;">
             <label for="c_mensaje">Mensaje de Bienvenida de la Tienda</label>
-            <textarea id="c_mensaje" class="input-control" rows="3" required></textarea>
+            <textarea id="c_mensaje" class="input-control" rows="2" required></textarea>
           </div>
-          <button type="submit" id="btnSubmitConfig" class="btn btn-primary">Guardar Configuración de la Tienda</button>
+          <button type="submit" id="btnSubmitConfig" class="btn btn-primary">Guardar Configuración General</button>
         </form>
       </section>
 
@@ -178,6 +191,6 @@
 
   <div id="toast"></div>
 
-  <script src="js/admin.js?v=10"></script>
+  <script src="js/admin.js?v=11"></script>
 </body>
 </html>

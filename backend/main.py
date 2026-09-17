@@ -33,6 +33,21 @@ async def lifespan(app: FastAPI):
             conn.commit()
     except Exception:
         pass
+        
+    # Auto-migración para la configuración de la Promo Flash
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_activo BOOLEAN DEFAULT 0;"))
+            conn.commit()
+    except Exception:
+        pass
+
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_texto VARCHAR DEFAULT '⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy. ⚡';"))
+            conn.commit()
+    except Exception:
+        pass
     
     db = SessionLocal()
     try:
@@ -45,7 +60,7 @@ async def lifespan(app: FastAPI):
             db.add(default_admin)
             db.commit()
             
-        # Crear la configuración por defecto si la tabla está vacía
+        # Crear la configuración por defecto si la tabla está vacía[cite: 6]
         config = db.query(models.Configuracion).first()
         if not config:
             default_config = models.Configuracion()
@@ -101,6 +116,14 @@ def actualizar_configuracion(
     config.whatsapp = datos.whatsapp.strip()
     config.tiktok = datos.tiktok.strip()
     config.mensaje_anuncio = datos.mensaje_anuncio.strip()
+    
+    # Manejo dinámico para los nuevos campos de Promo Flash usando getattr para evitar crashes si el esquema no se ha recargado[cite: 6]
+    config.promo_flash_activo = getattr(datos, 'promo_flash_activo', config.promo_flash_activo)
+    
+    nuevo_texto = getattr(datos, 'promo_flash_texto', None)
+    if nuevo_texto is not None:
+        config.promo_flash_texto = nuevo_texto.strip()
+        
     db.commit()
     db.refresh(config)
     return config
@@ -204,7 +227,6 @@ def actualizar_producto(
     producto.badge = badge.strip() if badge else None
     producto.descripcion = descripcion.strip() if descripcion else None
 
-    # Si se suben nuevas fotos, reemplazar las existentes
     if imagenes:
         valid_files = [f for f in imagenes if f.filename]
         if valid_files:

@@ -10,7 +10,9 @@ let currentSelectedProduct = null;
 let globalStoreConfig = {
   whatsapp: "593992641656",
   tiktok: "https://www.tiktok.com/@store_gx",
-  mensaje_anuncio: "Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador."
+  mensaje_anuncio: "Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador.",
+  promo_flash_activo: false,
+  promo_flash_texto: "⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy."
 };
 
 // DOM
@@ -19,7 +21,6 @@ const brandFilter = document.getElementById("brandFilter");
 const productsGrid = document.getElementById("productsGrid");
 const loading = document.getElementById("loading");
 
-// Modal DOM
 const productModal = document.getElementById("productModal");
 const modalCloseBtn = document.getElementById("modalCloseBtn");
 const modalImgWrap = document.getElementById("modalImgWrap");
@@ -35,7 +36,6 @@ const modalDesc = document.getElementById("modalDesc");
 const modalWaBtn = document.getElementById("modalWaBtn");
 const modalShareBtn = document.getElementById("modalShareBtn");
 
-// Flechas
 const galleryPrevBtn = document.getElementById("galleryPrevBtn");
 const galleryNextBtn = document.getElementById("galleryNextBtn");
 
@@ -49,7 +49,6 @@ function createSlug(marca, nombre, almacenamiento) {
     .replace(/^-+|-+$/g, "");
 }
 
-// INYECCIÓN DE SKELETON LOADERS
 function renderSkeletons() {
   if (!productsGrid) return;
   productsGrid.style.display = "grid";
@@ -79,6 +78,10 @@ function renderSkeletons() {
 
 // 1. OBTENER CONFIGURACIÓN
 async function fetchStoreConfig() {
+  // Esconder promo por defecto hasta verificar
+  const promoBar = document.querySelector(".flash-promo-bar");
+  if (promoBar) promoBar.style.display = "none";
+
   try {
     const res = await fetch(`${API_URL}/configuracion`);
     if (res.ok) {
@@ -94,6 +97,20 @@ async function fetchStoreConfig() {
 function applyConfigToDOM() {
   const heroDesc = document.querySelector(".hero p");
   if (heroDesc) heroDesc.textContent = globalStoreConfig.mensaje_anuncio;
+
+  // Renderizar la barra de Promoción Flash dinámica
+  const promoBar = document.querySelector(".flash-promo-bar");
+  if (promoBar) {
+    if (globalStoreConfig.promo_flash_activo) {
+      promoBar.style.display = "block";
+      const promoText = promoBar.querySelector("p");
+      if (promoText && globalStoreConfig.promo_flash_texto) {
+        promoText.textContent = globalStoreConfig.promo_flash_texto;
+      }
+    } else {
+      promoBar.style.display = "none";
+    }
+  }
 
   document.querySelectorAll('a.whatsapp, a.btn-whatsapp-large, .social-circle-btn.whatsapp').forEach(el => {
     if (el.id !== "modalWaBtn") { 
@@ -150,7 +167,6 @@ function getBadgePriority(badge) {
   return 4;
 }
 
-// RENDERIZADO LIMPIO DE PRODUCTOS
 function renderProducts() {
   if (!productsGrid) return;
   
@@ -170,17 +186,11 @@ function renderProducts() {
   filtered.sort((a, b) => {
     const aAgotado = (a.badge && a.badge.toUpperCase().includes("AGOTADO")) || !a.disponible;
     const bAgotado = (b.badge && b.badge.toUpperCase().includes("AGOTADO")) || !b.disponible;
-
     if (aAgotado && !bAgotado) return 1;
     if (!aAgotado && bAgotado) return -1;
-
     const priorityA = getBadgePriority(a.badge);
     const priorityB = getBadgePriority(b.badge);
-
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-
+    if (priorityA !== priorityB) return priorityA - priorityB;
     return new Date(b.fecha_creacion || 0) - new Date(a.fecha_creacion || 0);
   });
 
@@ -199,7 +209,6 @@ function renderProducts() {
     const imgPath = firstImg ? (firstImg.startsWith("http") ? firstImg : `${BACKEND_BASE}${firstImg}`) : 'https://placehold.co/500x500/14141a/ffffff?text=Sin+Foto';
     const totalFotos = item.imagenes ? item.imagenes.length : 0;
     const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.precio);
-
     const isAgotado = (item.badge && item.badge.toUpperCase().includes("AGOTADO")) || !item.disponible;
 
     return `
@@ -218,7 +227,6 @@ function renderProducts() {
           <span class="card-brand">${item.marca}</span>
           <h3 class="card-title">${item.nombre}</h3>
           
-          <!-- ESPECIFICACIONES INTEGRADAS Y LIMPIAS -->
           <div class="card-specs-row">
             ${item.estado ? `<span class="spec-pill condition">${item.estado}</span>` : ''}
             ${item.almacenamiento ? `<span class="spec-pill storage">💾 ${item.almacenamiento}</span>` : ''}
@@ -235,7 +243,6 @@ function renderProducts() {
   }).join("");
 }
 
-// ABRIR MODAL
 window.openProductModal = function(id) {
   const item = productos.find(p => p.id === id);
   if (!item) return;
@@ -272,14 +279,13 @@ window.openProductModal = function(id) {
   if (modalTitle) modalTitle.textContent = item.nombre;
   if (modalPrice) {
     modalPrice.textContent = formattedPrice;
-    modalPrice.style.color = isAgotado ? "var(--text-muted)" : "var(--accent-red)";
+    modalPrice.style.color = isAgotado ? "var(--text-muted)" : "var(--accent-green)";
   }
   if (modalCondition) modalCondition.textContent = item.estado || "Garantizado";
   if (modalStorage) modalStorage.textContent = item.almacenamiento || "—";
   if (modalBattery) modalBattery.textContent = item.bateria_salud || "—";
   if (modalDesc) modalDesc.textContent = item.descripcion || "Equipo testeado y garantizado con entrega inmediata.";
 
-  // BOTÓN COMPRAR WHATSAPP
   if (modalWaBtn) {
     if (isAgotado) {
       modalWaBtn.className = "btn btn-soldout-large btn-full";
@@ -309,7 +315,6 @@ window.openProductModal = function(id) {
     }
   }
 
-  // BOTÓN DE COMPARTIR NATIVO (WEB SHARE API)
   if (modalShareBtn) {
     modalShareBtn.onclick = async (e) => {
       e.stopPropagation();
@@ -403,7 +408,6 @@ if (galleryNextBtn) {
   });
 }
 
-// SWIPE TÁCTIL PARA CELULARES EN EL MODAL
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -430,7 +434,6 @@ function handleSwipeGesture() {
   }
 }
 
-// ACCESOS POR TECLADO
 window.addEventListener("keydown", (e) => {
   if (productModal && productModal.style.display === "flex") {
     if (e.key === "ArrowLeft" && galleryPrevBtn) {

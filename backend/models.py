@@ -33,3 +33,5 @@ class Configuracion(Base):
     whatsapp = Column(String, default="593992641656", nullable=False)
     tiktok = Column(String, default="https://www.tiktok.com/@store_gx", nullable=False)
     mensaje_anuncio = Column(String, default="Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador.", nullable=False)
+    promo_flash_activo = Column(Boolean, default=False, nullable=True)
+    promo_flash_texto = Column(String, default="⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy. ⚡", nullable=True)
