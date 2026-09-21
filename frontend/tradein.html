@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Programa Trade-In | GX STORE ECUADOR</title>
   <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
-  <link rel="stylesheet" href="css/styles.css?v=16">
+  <link rel="stylesheet" href="css/styles.css?v=17">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: var(--bg-body);">
 
   <div class="tradein-wrapper" style="width: 100%; max-width: 500px; padding: 1.5rem;">
-    <!-- Botón Volver -->
     <a href="index.html" style="display: inline-block; color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; transition: color 0.2s;">
       &larr; Volver al Catálogo
     </a>
@@ -49,6 +48,11 @@
         </div>
 
         <div class="form-group">
+          <label for="tiempoUso">Tiempo de uso aproximado</label>
+          <input type="text" id="tiempoUso" class="input-control" placeholder="Ej: 8 meses / 1 año" required>
+        </div>
+
+        <div class="form-group">
           <label for="detalles">Estado físico y detalles</label>
           <textarea id="detalles" class="input-control" rows="3" placeholder="Ej: Pantalla impecable, pequeño rayón en la parte trasera. Sin caja." required></textarea>
         </div>
@@ -71,10 +75,11 @@
       const modelo = document.getElementById('marcaModelo').value;
       const capacidad = document.getElementById('capacidad').value;
       const bateria = document.getElementById('bateria').value;
+      const tiempoUso = document.getElementById('tiempoUso').value;
       const detalles = document.getElementById('detalles').value;
 
       // Armar el mensaje para WhatsApp
-      const mensaje = `Hola GX Store, me interesa el programa Trade-In.\n\n*Quiero:* ${tipo}\n*Equipo:* ${modelo}\n*Capacidad:* ${capacidad}\n*Salud Batería:* ${bateria}\n*Detalles:* ${detalles}\n\n¿Me pueden ayudar con una pre-cotización?`;
+      const mensaje = `Hola GX Store, me interesa el programa Trade-In.\n\n*Quiero:* ${tipo}\n*Equipo:* ${modelo}\n*Capacidad:* ${capacidad}\n*Salud Batería:* ${bateria}\n*Tiempo de Uso:* ${tiempoUso}\n*Detalles:* ${detalles}\n\n¿Me pueden ayudar con una pre-cotización?`;
       
       // Codificar el texto para la URL
       const mensajeCodificado = encodeURIComponent(mensaje);

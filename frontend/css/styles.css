@@ -1154,146 +1154,100 @@ body {
   color: var(--accent-green);
 }
 
+/* =========================================
+   BOTÓN TRADE-IN (NAVBAR PÍLDORA)
+   ========================================= */
+.trade-in-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.05);
+  color: var(--accent-green) !important;
+  border: 1px solid var(--accent-green);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25), inset 0 0 6px rgba(16, 185, 129, 0.15);
+}
+
+.trade-in-btn:hover {
+  background: var(--accent-green);
+  color: #000 !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  transform: translateY(-2px);
+}
+
 /* =========================================================
    REGLAS RESPONSIVAS PARA TABLETS Y CELULARES
    ========================================================= */
 @media (max-width: 850px) {
-  .modal-backdrop {
-    padding: 0.6rem;
-  }
-  
-  .modal-content {
-    display: flex;
-    flex-direction: column;
-    max-height: 94vh;
-  }
-  
-  .modal-gallery-col {
-    padding: 1.2rem 1rem;
-  }
-
-  .modal-main-img-wrap {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: none;
-  }
-
-  .modal-info-col {
-    padding: 1.2rem 1rem;
-  }
-
-  .modal-specs-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .footer-content {
-    grid-template-columns: 1fr;
-    gap: 1.8rem;
-  }
-
-  .hero h1 {
-    font-size: 1.8rem;
-  }
-
-  .filter-bar {
-    flex-wrap: wrap;
-  }
-  .input-search, .select-filter {
-    flex: 1 1 100%;
-  }
-
-  .bottom-trust-banner {
-    padding: 2rem 1.5rem;
-    gap: 1rem;
-  }
+  .modal-backdrop { padding: 0.6rem; }
+  .modal-content { display: flex; flex-direction: column; max-height: 94vh; }
+  .modal-gallery-col { padding: 1.2rem 1rem; }
+  .modal-main-img-wrap { width: 100%; height: auto; aspect-ratio: 1 / 1; max-height: none; }
+  .modal-info-col { padding: 1.2rem 1rem; }
+  .modal-specs-grid { grid-template-columns: 1fr 1fr; }
+  .footer-content { grid-template-columns: 1fr; gap: 1.8rem; }
+  .hero h1 { font-size: 1.8rem; }
+  .filter-bar { flex-wrap: wrap; }
+  .input-search, .select-filter { flex: 1 1 100%; }
+  .bottom-trust-banner { padding: 2rem 1.5rem; gap: 1rem; }
 }
 
 @media (max-width: 580px) {
   .navbar {
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 1rem;
   }
   
-  .brand-gx .gx-green {
-    font-size: 1.65rem;
+  .brand-gx .gx-green { font-size: 1.5rem; }
+  .brand-gx .store-text { font-size: 0.9rem; }
+  .badge-country { font-size: 0.65rem; padding: 1px 4px; }
+  
+  /* Ajuste de íconos sociales y botón en móviles */
+  .nav-actions {
+    gap: 0.4rem !important;
   }
   
-  .brand-gx .store-text {
-    font-size: 0.95rem;
-  }
-  
-  .badge-country {
-    font-size: 0.65rem;
-    padding: 1px 4px;
+  .nav-socials {
+    flex-direction: column;
+    gap: 4px;
   }
   
   .social-circle-btn {
-    width: 34px;
-    height: 34px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
   }
   
   .social-circle-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
   }
 
-  .modal-backdrop {
-    padding: 0.35rem;
+  .trade-in-btn {
+    padding: 8px 10px;
+    border-radius: 50px;
+  }
+  
+  .trade-in-text {
+    display: none;
   }
 
-  .modal-content {
-    max-height: 96vh;
-    border-radius: var(--radius-md);
-  }
-
-  .modal-gallery-col {
-    padding: 0.85rem;
-  }
-
-  .modal-main-img-wrap {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: none;
-  }
-
-  .thumb-img {
-    width: 48px;
-    height: 48px;
-  }
-
-  .modal-info-col {
-    padding: 1rem 0.85rem 1.4rem 0.85rem;
-  }
-
-  .modal-price {
-    font-size: 1.65rem;
-    margin: 0.3rem 0 0.8rem 0;
-  }
-
-  .modal-specs-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.4rem;
-  }
-
-  .verified-items-list {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-card {
-    padding: 1.2rem;
-  }
-
-  .bottom-trust-banner {
-    flex-direction: column;
-    text-align: center;
-    padding: 1.8rem 1.2rem;
-    margin-top: 2.5rem;
-  }
-  .trust-text-content h3 {
-    font-size: 1.25rem;
-  }
-  .trust-text-content p {
-    font-size: 0.85rem;
-  }
+  .modal-backdrop { padding: 0.35rem; }
+  .modal-content { max-height: 96vh; border-radius: var(--radius-md); }
+  .modal-gallery-col { padding: 0.85rem; }
+  .modal-main-img-wrap { width: 100%; height: auto; aspect-ratio: 1 / 1; max-height: none; }
+  .thumb-img { width: 48px; height: 48px; }
+  .modal-info-col { padding: 1rem 0.85rem 1.4rem 0.85rem; }
+  .modal-price { font-size: 1.65rem; margin: 0.3rem 0 0.8rem 0; }
+  .modal-specs-grid { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+  .verified-items-list { grid-template-columns: 1fr; }
+  .admin-card { padding: 1.2rem; }
+  .bottom-trust-banner { flex-direction: column; text-align: center; padding: 1.8rem 1.2rem; margin-top: 2.5rem; }
+  .trust-text-content h3 { font-size: 1.25rem; }
+  .trust-text-content p { font-size: 0.85rem; }
 }
