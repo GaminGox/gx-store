@@ -1181,6 +1181,39 @@ body {
   transform: translateY(-2px);
 }
 
+/* =========================================
+   BOTÓN FLOTANTE WHATSAPP NEÓN
+   ========================================= */
+.floating-whatsapp {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #25D366;
+  color: #fff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  transition: var(--transition);
+  animation: pulse-whatsapp 2s infinite;
+}
+
+.floating-whatsapp:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 0 30px rgba(37, 211, 102, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.4);
+  animation: none;
+}
+
+@keyframes pulse-whatsapp {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
+  70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
 /* =========================================================
    REGLAS RESPONSIVAS PARA TABLETS Y CELULARES
    ========================================================= */
@@ -1200,7 +1233,7 @@ body {
 
 @media (max-width: 580px) {
   .navbar {
-    padding: 0.6rem 0.5rem; /* Ajuste para que quepa todo */
+    padding: 0.6rem 0.5rem; 
   }
   
   .brand-gx .gx-green { font-size: 1.3rem; }
@@ -1211,30 +1244,25 @@ body {
     gap: 0.4rem !important;
   }
   
-  .nav-socials {
-    flex-direction: column; /* Apila TikTok y WhatsApp verticalmente */
-    gap: 4px;
-  }
-  
-  .social-circle-btn {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-  }
-  
-  .social-circle-btn svg {
-    width: 12px;
-    height: 12px;
-  }
-
   .trade-in-btn {
     padding: 6px 10px;
     border-radius: 50px;
-    font-size: 0.65rem; /* Letra más chica para que entre perfectamente */
+    font-size: 0.65rem; 
   }
   
   .trade-in-text {
-    display: inline; /* Asegura que el texto VENDER EQUIPO sí se vea en móviles */
+    display: inline; 
+  }
+
+  .floating-whatsapp {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+  }
+  .floating-whatsapp svg {
+    width: 26px;
+    height: 26px;
   }
 
   .modal-backdrop { padding: 0.35rem; }
