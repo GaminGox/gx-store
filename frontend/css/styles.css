@@ -50,8 +50,8 @@ body {
   font-weight: 600;
   overflow: hidden;
   white-space: nowrap;
-  border-bottom: 1px solid #e50914; /* Borde rojo neón */
-  box-shadow: 0 2px 15px rgba(229, 9, 20, 0.4); /* Resplandor rojo hacia abajo */
+  border-bottom: 1px solid #e50914;
+  box-shadow: 0 2px 15px rgba(229, 9, 20, 0.4);
   position: relative;
   display: block;
 }
@@ -188,7 +188,7 @@ body {
 
 /* HERO */
 .hero {
-  margin-bottom: 2.5rem; /* Margen ampliado para mejor respiro visual */
+  margin-bottom: 2.5rem;
   text-align: left;
 }
 
@@ -211,7 +211,8 @@ body {
    MÉTODOS DE PAGO BANNER (NEON BORDERS)
    ========================================= */
 .payment-banner {
-  margin-bottom: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
   text-align: center;
   padding: 0;
   background: transparent;
@@ -302,7 +303,6 @@ body {
   transition: var(--transition);
 }
 
-/* Mejora contraste placeholder */
 .input-search::placeholder, .select-filter::placeholder, .input-control::placeholder {
   color: #a1a1aa;
 }
