@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" href="favicon.png">
   
   <!-- Forzamos la recarga del CSS y JS -->
-  <link rel="stylesheet" href="css/styles.css?v=11">
+  <link rel="stylesheet" href="css/styles.css?v=12">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -57,9 +57,9 @@
   </header>
 
   <main class="container">
-    <!-- HERO CON GX EN VERDE Y STORE EN BLANCO -->
+    <!-- HERO CON DISEÑO MINIMALISTA -->
     <section class="hero">
-      <h1>Catálogo Exclusivo <span style="color: var(--accent-green); font-weight: 900;">GX</span> <span style="color: var(--text-main); font-weight: 800; letter-spacing: 1px;">STORE</span> <span style="color: #ffd100;">E</span><span style="color: #ffd100;">C</span><span style="color: #ffd100;">U</span><span style="color: #ffd100;">A</span><span style="color: #3b82f6;">D</span><span style="color: #3b82f6;">O</span><span style="color: #ef4444;">R</span></h1>
+      <h1>Catálogo Exclusivo <span style="color: var(--accent-green); font-weight: 900;">GX</span> <span style="color: var(--text-main); font-weight: 800; letter-spacing: 1px;">STORE</span> <span style="color: var(--text-muted); font-weight: 900;">ECUADOR</span></h1>
       <p>Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador.</p>
     </section>
 
@@ -88,7 +88,7 @@
       </div>
     </section>
 
-    <!-- MÉTODOS DE PAGO BANNER -->
+    <!-- MÉTODOS DE PAGO BANNER REDISEÑADO -->
     <section class="payment-banner">
       <h3 class="payment-title">Paga de forma 100% segura</h3>
       <div class="payment-icons">
@@ -101,15 +101,15 @@
       </div>
     </section>
 
-    <!-- FILTROS Y BÚSQUEDA -->
+    <!-- FILTROS Y BÚSQUEDA (AHORA EN UNA SOLA FILA) -->
     <section class="filter-bar">
-      <input type="text" id="searchInput" class="input-search" placeholder="Buscar por marca, modelo o capacidad (iPhone 14, 256GB, Pixel, Samsung...)...">
+      <input type="text" id="searchInput" class="input-search" placeholder="Buscar modelo o capacidad (ej. iPhone 14, 256GB)...">
       <select id="brandFilter" class="select-filter">
         <option value="">Todas las marcas</option>
       </select>
     </section>
 
-    <div id="loading" style="text-align: center; color: var(--text-secondary); padding: 3rem;">
+    <div id="loading" style="text-align: center; color: var(--text-secondary); padding: 2rem;">
       Cargando stock disponible...
     </div>
 
@@ -245,6 +245,6 @@
     </div>
   </footer>
 
-  <script src="js/app.js?v=11"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>
