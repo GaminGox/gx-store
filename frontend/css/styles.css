@@ -1200,20 +1200,19 @@ body {
 
 @media (max-width: 580px) {
   .navbar {
-    padding: 0.6rem 1rem;
+    padding: 0.6rem 0.5rem; /* Ajuste para que quepa todo */
   }
   
-  .brand-gx .gx-green { font-size: 1.5rem; }
-  .brand-gx .store-text { font-size: 0.9rem; }
-  .badge-country { font-size: 0.65rem; padding: 1px 4px; }
+  .brand-gx .gx-green { font-size: 1.3rem; }
+  .brand-gx .store-text { font-size: 0.8rem; }
+  .badge-country { font-size: 0.55rem; padding: 1px 3px; margin-left: 2px; }
   
-  /* Ajuste de íconos sociales y botón en móviles */
   .nav-actions {
     gap: 0.4rem !important;
   }
   
   .nav-socials {
-    flex-direction: column;
+    flex-direction: column; /* Apila TikTok y WhatsApp verticalmente */
     gap: 4px;
   }
   
@@ -1229,12 +1228,13 @@ body {
   }
 
   .trade-in-btn {
-    padding: 8px 10px;
+    padding: 6px 10px;
     border-radius: 50px;
+    font-size: 0.65rem; /* Letra más chica para que entre perfectamente */
   }
   
   .trade-in-text {
-    display: none;
+    display: inline; /* Asegura que el texto VENDER EQUIPO sí se vea en móviles */
   }
 
   .modal-backdrop { padding: 0.35rem; }
