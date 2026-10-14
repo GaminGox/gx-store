@@ -503,11 +503,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     setTimeout(() => {
       smartToast.classList.add('show');
     }, 3000);
-
-    // Ocultar automáticamente a los 15 segundos si no interactúan
-    setTimeout(() => {
-      smartToast.classList.remove('show');
-    }, 15000);
   }
 
   if(closeToastBtn) {

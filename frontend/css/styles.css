@@ -1219,8 +1219,8 @@ body {
    ========================================= */
 .smart-toast {
   position: fixed;
-  bottom: 25px;
-  left: -400px;
+  bottom: 30px; /* Alineado con WhatsApp */
+  left: -400px; /* Escondido a la izquierda */
   width: 320px;
   background: rgba(15, 15, 19, 0.95);
   backdrop-filter: blur(16px);
@@ -1234,7 +1234,7 @@ body {
 }
 
 .smart-toast.show {
-  transform: translateX(425px);
+  transform: translateX(430px); /* Entra por la izquierda */
   opacity: 1;
 }
 
@@ -1264,7 +1264,7 @@ body {
 .toast-close:hover { color: #fff; }
 
 .toast-body {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.4;
 }
@@ -1344,7 +1344,9 @@ body {
 
 @media (max-width: 768px) {
   .express-lists-grid { grid-template-columns: 1fr; gap: 1rem; }
-  .smart-toast.show { transform: translateX(calc(100% + 25px)); left: -100%; width: calc(100vw - 50px); }
+  /* Ajuste para que la notificación se vea bien en celular (Entrando desde la izquierda y más delgada) */
+  .smart-toast { width: calc(100% - 90px); }
+  .smart-toast.show { transform: translateX(calc(100% + 420px)); left: -400px; }
 }
 
 @media (max-width: 580px) {
@@ -1372,13 +1374,25 @@ body {
 
   .floating-whatsapp {
     bottom: 20px;
-    right: 20px;
+    right: 15px;
     width: 50px;
     height: 50px;
   }
   .floating-whatsapp svg {
     width: 26px;
     height: 26px;
+  }
+
+  /* Ajuste preciso para la notificación en Android */
+  .smart-toast {
+    bottom: 20px;
+    left: -100%; 
+    width: calc(100% - 85px); /* Deja espacio exacto para el botón de WA a la derecha */
+    padding: 1rem;
+  }
+  
+  .smart-toast.show {
+    transform: translateX(calc(100% + 15px)); /* Se desliza dejándole margen al botón */
   }
 
   .modal-backdrop { padding: 0.35rem; }
