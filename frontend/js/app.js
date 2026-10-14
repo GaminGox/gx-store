@@ -78,7 +78,6 @@ function renderSkeletons() {
 
 // 1. OBTENER CONFIGURACIÓN
 async function fetchStoreConfig() {
-  // Esconder promo por defecto hasta verificar
   const promoBar = document.querySelector(".flash-promo-bar");
   if (promoBar) promoBar.style.display = "none";
 
@@ -98,7 +97,6 @@ function applyConfigToDOM() {
   const heroDesc = document.querySelector(".hero p");
   if (heroDesc) heroDesc.textContent = globalStoreConfig.mensaje_anuncio;
 
-  // Renderizar la barra de Promoción Flash dinámica
   const promoBar = document.querySelector(".flash-promo-bar");
   if (promoBar) {
     if (globalStoreConfig.promo_flash_activo) {
@@ -113,7 +111,7 @@ function applyConfigToDOM() {
   }
 
   document.querySelectorAll('a.whatsapp, a.btn-whatsapp-large, .social-circle-btn.whatsapp').forEach(el => {
-    if (el.id !== "modalWaBtn") { 
+    if (el.id !== "modalWaBtn" && !el.classList.contains('floating-whatsapp') && !el.closest('#expressCatalogModal')) { 
       el.href = `https://wa.me/${globalStoreConfig.whatsapp}`;
     }
   });
@@ -487,7 +485,55 @@ function checkDeepLink() {
   }
 }
 
+// ==========================================
+// LÓGICA DE NOTIFICACIÓN INTELIGENTE Y MODAL
+// ==========================================
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchStoreConfig();
   fetchProducts();
+
+  const smartToast = document.getElementById('smartToast');
+  const closeToastBtn = document.getElementById('closeToastBtn');
+  const openExpressCatalogBtn = document.getElementById('openExpressCatalogBtn');
+  const expressCatalogModal = document.getElementById('expressCatalogModal');
+  const closeExpressModalBtn = document.getElementById('closeExpressModalBtn');
+
+  // Mostrar el Toast 3 segundos después de cargar la página
+  if(smartToast) {
+    setTimeout(() => {
+      smartToast.classList.add('show');
+    }, 3000);
+
+    // Ocultar automáticamente a los 15 segundos si no interactúan
+    setTimeout(() => {
+      smartToast.classList.remove('show');
+    }, 15000);
+  }
+
+  if(closeToastBtn) {
+    closeToastBtn.addEventListener('click', () => {
+      smartToast.classList.remove('show');
+    });
+  }
+
+  if(openExpressCatalogBtn) {
+    openExpressCatalogBtn.addEventListener('click', () => {
+      smartToast.classList.remove('show'); 
+      if(expressCatalogModal) {
+        expressCatalogModal.style.display = 'flex'; 
+      }
+    });
+  }
+
+  if(closeExpressModalBtn) {
+    closeExpressModalBtn.addEventListener('click', () => {
+      expressCatalogModal.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('click', (e) => {
+    if (e.target === expressCatalogModal) {
+      expressCatalogModal.style.display = 'none';
+    }
+  });
 });
