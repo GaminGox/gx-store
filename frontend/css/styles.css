@@ -1219,8 +1219,8 @@ body {
    ========================================= */
 .smart-toast {
   position: fixed;
-  bottom: 30px; /* Alineado con WhatsApp */
-  left: -400px; /* Escondido a la izquierda */
+  bottom: 30px; 
+  left: -400px; 
   width: 320px;
   background: rgba(15, 15, 19, 0.95);
   backdrop-filter: blur(16px);
@@ -1234,7 +1234,7 @@ body {
 }
 
 .smart-toast.show {
-  transform: translateX(430px); /* Entra por la izquierda */
+  transform: translateX(430px); 
   opacity: 1;
 }
 
@@ -1344,9 +1344,6 @@ body {
 
 @media (max-width: 768px) {
   .express-lists-grid { grid-template-columns: 1fr; gap: 1rem; }
-  /* Ajuste para que la notificación se vea bien en celular (Entrando desde la izquierda y más delgada) */
-  .smart-toast { width: calc(100% - 90px); }
-  .smart-toast.show { transform: translateX(calc(100% + 420px)); left: -400px; }
 }
 
 @media (max-width: 580px) {
@@ -1385,14 +1382,14 @@ body {
 
   /* Ajuste preciso para la notificación en Android */
   .smart-toast {
-    bottom: 20px;
-    left: -100%; 
-    width: calc(100% - 85px); /* Deja espacio exacto para el botón de WA a la derecha */
+    left: 15px; /* Fijo a la izquierda */
+    transform: translateX(-150vw); /* Escondido fuera de la pantalla */
+    width: calc(100vw - 90px); /* Ancho dinámico dejando espacio exacto para el botón WA */
     padding: 1rem;
   }
   
   .smart-toast.show {
-    transform: translateX(calc(100% + 15px)); /* Se desliza dejándole margen al botón */
+    transform: translateX(0); /* Entra suavemente a su posición final (left: 15px) */
   }
 
   .modal-backdrop { padding: 0.35rem; }
