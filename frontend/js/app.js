@@ -550,7 +550,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if(expressCatalogModal) {
     setTimeout(() => {
       expressCatalogModal.style.display = 'flex'; 
-    }, 500);
+    }, 2500);
   }
 
   // Cerrar con la X

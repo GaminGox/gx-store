@@ -618,6 +618,19 @@ body {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+  /* NUEVA ANIMACIÓN: Sube desde abajo suavemente */
+  animation: modalSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+/* KEYFRAMES PARA LA ANIMACIÓN (Pégalo justo debajo de .modal-content) */
+@keyframes modalSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(120px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-close {
