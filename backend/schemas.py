@@ -33,8 +33,8 @@ class ConfiguracionOut(BaseModel):
     mensaje_anuncio: str
     promo_flash_activo: Optional[bool] = False
     promo_flash_texto: Optional[str] = None
-    express_apple: Optional[list] = None
-    express_samsung: Optional[list] = None
+    express_apple: Optional[Any] = None
+    express_samsung: Optional[Any] = None
 
     class Config:
         from_attributes = True
@@ -46,7 +46,6 @@ class ConfiguracionUpdate(BaseModel):
     promo_flash_activo: Optional[bool] = False
     promo_flash_texto: Optional[str] = None
 
-# Nuevo esquema exclusivo para actualizar la lista de precios express
 class ExpressCatalogUpdate(BaseModel):
-    express_apple: Optional[list] = None
-    express_samsung: Optional[list] = None
+    express_apple: Optional[Any] = None
+    express_samsung: Optional[Any] = None

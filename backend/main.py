@@ -1,4 +1,5 @@
 import os
+import json
 from contextlib import asynccontextmanager
 from typing import List, Optional, Any
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
@@ -17,31 +18,44 @@ from utils import save_and_optimize_image, remove_multiple_images
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     os.makedirs("uploads", exist_ok=True)
-    
-    # --- FIX DEFINITIVO: Borrar la tabla de configuración trabada y reconstruirla limpia ---
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("DROP TABLE IF EXISTS configuracion;"))
-            conn.commit()
-    except Exception:
-        pass
-        
     models.Base.metadata.create_all(bind=engine)
     
-    # Auto-migraciones para productos (No tocamos los celulares)
+    # Auto-migraciones
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN badge VARCHAR;"))
             conn.commit()
-    except Exception:
-        pass
+    except Exception: pass
 
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN clics_whatsapp INTEGER DEFAULT 0;"))
             conn.commit()
-    except Exception:
-        pass
+    except Exception: pass
+        
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_activo BOOLEAN DEFAULT 0;"))
+            conn.commit()
+    except Exception: pass
+
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_texto VARCHAR DEFAULT '⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy. ⚡';"))
+            conn.commit()
+    except Exception: pass
+
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_apple JSON;"))
+            conn.commit()
+    except Exception: pass
+
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_samsung JSON;"))
+            conn.commit()
+    except Exception: pass
     
     db = SessionLocal()
     try:
@@ -61,7 +75,7 @@ async def lifespan(app: FastAPI):
             db.commit()
             config = default_config
 
-        # Rellenar con los datos por defecto en la tabla nueva
+        # Rellenar con los datos base si está vacío
         if not config.express_apple:
             config.express_apple = [
                 {"serie": "Serie iPhone 12", "modelo": "iPhone 12 (64GB)", "precio": 255},
@@ -137,7 +151,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="GX Store API",
-    version="2.4.0",
+    version="2.5.0",
     lifespan=lifespan
 )
 
@@ -151,6 +165,15 @@ app.add_middleware(
 
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+def parsear_config(config):
+    if isinstance(config.express_apple, str):
+        try: config.express_apple = json.loads(config.express_apple)
+        except: pass
+    if isinstance(config.express_samsung, str):
+        try: config.express_samsung = json.loads(config.express_samsung)
+        except: pass
+    return config
 
 # --- AUTENTICACIÓN ---
 @app.post("/api/auth/login", response_model=schemas.Token)
@@ -169,7 +192,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @app.get("/api/configuracion", response_model=schemas.ConfiguracionOut)
 def obtener_configuracion(db: Session = Depends(get_db)):
     config = db.query(models.Configuracion).first()
-    return config
+    return parsear_config(config)
 
 @app.put("/api/configuracion", response_model=schemas.ConfiguracionOut)
 def actualizar_configuracion(
@@ -190,7 +213,7 @@ def actualizar_configuracion(
         
     db.commit()
     db.refresh(config)
-    return config
+    return parsear_config(config)
 
 # --- NUEVA RUTA: CATÁLOGO EXPRESS ---
 @app.put("/api/configuracion/express", response_model=schemas.ConfiguracionOut)
@@ -208,7 +231,7 @@ def actualizar_catalogo_express(
         
     db.commit()
     db.refresh(config)
-    return config
+    return parsear_config(config)
 
 # --- PRODUCTOS PÚBLICOS ---
 @app.get("/api/productos", response_model=List[schemas.ProductoOut])
