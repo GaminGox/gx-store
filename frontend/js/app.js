@@ -12,7 +12,9 @@ let globalStoreConfig = {
   tiktok: "https://www.tiktok.com/@store_gx",
   mensaje_anuncio: "Smartphones seminuevos y sellados garantizados con fotos 100% reales y envíos seguros a todo el Ecuador.",
   promo_flash_activo: false,
-  promo_flash_texto: "⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy."
+  promo_flash_texto: "⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy.",
+  express_apple: [],
+  express_samsung: []
 };
 
 // DOM
@@ -86,6 +88,7 @@ async function fetchStoreConfig() {
     if (res.ok) {
       globalStoreConfig = await res.json();
       applyConfigToDOM();
+      renderExpressCatalog(); // Construye el catálogo con los datos de la BD
     }
   } catch (error) {
     console.warn("Usando configuración local por defecto.");
@@ -486,46 +489,78 @@ function checkDeepLink() {
 }
 
 // ==========================================
-// LÓGICA DE NOTIFICACIÓN INTELIGENTE Y MODAL
+// RENDERIZADO DINÁMICO DEL CATÁLOGO EXPRESS
+// ==========================================
+function renderExpressCatalog() {
+  const expressContainer = document.querySelector('.express-lists-grid');
+  if (!expressContainer) return;
+
+  const appleData = globalStoreConfig.express_apple || [];
+  const samsungData = globalStoreConfig.express_samsung || [];
+
+  // Si no hay datos configurados, usar un estado vacío elegante
+  if (appleData.length === 0 && samsungData.length === 0) {
+    expressContainer.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">El catálogo express se está actualizando. Por favor revisa más tarde.</p>`;
+    return;
+  }
+
+  // Helper para agrupar los modelos por "serie" y renderizar bloques HTML
+  const buildColumnHTML = (title, icon, color, data) => {
+    if (!data || data.length === 0) return '';
+    
+    // Agrupar por serie
+    const seriesGrouped = data.reduce((acc, item) => {
+      if (!acc[item.serie]) acc[item.serie] = [];
+      acc[item.serie].push(item);
+      return acc;
+    }, {});
+
+    let html = `
+      <div class="brand-list-col">
+        <h3 class="brand-list-title" style="color: ${color};">${icon} ${title}</h3>
+    `;
+
+    for (const serie in seriesGrouped) {
+      html += `<div class="series-group"><div class="series-name">${serie}</div>`;
+      seriesGrouped[serie].forEach(item => {
+        html += `<div class="price-row"><span>${item.modelo}</span><span class="price-tag">$${item.precio}</span></div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+    return html;
+  };
+
+  expressContainer.innerHTML = 
+    buildColumnHTML('APPLE iPHONE', '', 'var(--text-main)', appleData) + 
+    buildColumnHTML('SAMSUNG GALAXY', '📱', '#60a5fa', samsungData);
+}
+
+// ==========================================
+// LÓGICA DEL MODAL EXPRESS (AL CARGAR LA PÁGINA)
 // ==========================================
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchStoreConfig();
   fetchProducts();
 
-  const smartToast = document.getElementById('smartToast');
-  const closeToastBtn = document.getElementById('closeToastBtn');
-  const openExpressCatalogBtn = document.getElementById('openExpressCatalogBtn');
   const expressCatalogModal = document.getElementById('expressCatalogModal');
   const closeExpressModalBtn = document.getElementById('closeExpressModalBtn');
 
-  // Mostrar el Toast 3 segundos después de cargar la página
-  if(smartToast) {
+  // Abre el Modal Gigante a pantalla completa automáticamente medio segundo después de entrar
+  if(expressCatalogModal) {
     setTimeout(() => {
-      smartToast.classList.add('show');
-    }, 3000);
+      expressCatalogModal.style.display = 'flex'; 
+    }, 500);
   }
 
-  if(closeToastBtn) {
-    closeToastBtn.addEventListener('click', () => {
-      smartToast.classList.remove('show');
-    });
-  }
-
-  if(openExpressCatalogBtn) {
-    openExpressCatalogBtn.addEventListener('click', () => {
-      smartToast.classList.remove('show'); 
-      if(expressCatalogModal) {
-        expressCatalogModal.style.display = 'flex'; 
-      }
-    });
-  }
-
+  // Cerrar con la X
   if(closeExpressModalBtn) {
     closeExpressModalBtn.addEventListener('click', () => {
       expressCatalogModal.style.display = 'none';
     });
   }
 
+  // Cerrar haciendo click afuera de la caja
   window.addEventListener('click', (e) => {
     if (e.target === expressCatalogModal) {
       expressCatalogModal.style.display = 'none';

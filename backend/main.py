@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     os.makedirs("uploads", exist_ok=True)
     models.Base.metadata.create_all(bind=engine)
     
-    # Auto-migración segura: agregar columna badge y clics si no existen
+    # Auto-migraciones para productos
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN badge VARCHAR;"))
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
         
-    # Auto-migración para la configuración de la Promo Flash
+    # Auto-migraciones para configuracion
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_activo BOOLEAN DEFAULT 0;"))
@@ -45,6 +45,21 @@ async def lifespan(app: FastAPI):
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_texto VARCHAR DEFAULT '⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy. ⚡';"))
+            conn.commit()
+    except Exception:
+        pass
+
+    # Auto-migración para el Catálogo Express
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_apple JSON;"))
+            conn.commit()
+    except Exception:
+        pass
+
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_samsung JSON;"))
             conn.commit()
     except Exception:
         pass
@@ -60,7 +75,6 @@ async def lifespan(app: FastAPI):
             db.add(default_admin)
             db.commit()
             
-        # Crear la configuración por defecto si la tabla está vacía[cite: 6]
         config = db.query(models.Configuracion).first()
         if not config:
             default_config = models.Configuracion()
@@ -72,7 +86,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="GX Store API",
-    version="2.1.0",
+    version="2.2.0",
     lifespan=lifespan
 )
 
@@ -117,12 +131,29 @@ def actualizar_configuracion(
     config.tiktok = datos.tiktok.strip()
     config.mensaje_anuncio = datos.mensaje_anuncio.strip()
     
-    # Manejo dinámico para los nuevos campos de Promo Flash usando getattr para evitar crashes si el esquema no se ha recargado[cite: 6]
     config.promo_flash_activo = getattr(datos, 'promo_flash_activo', config.promo_flash_activo)
     
     nuevo_texto = getattr(datos, 'promo_flash_texto', None)
     if nuevo_texto is not None:
         config.promo_flash_texto = nuevo_texto.strip()
+        
+    db.commit()
+    db.refresh(config)
+    return config
+
+# --- NUEVA RUTA: CATÁLOGO EXPRESS ---
+@app.put("/api/configuracion/express", response_model=schemas.ConfiguracionOut)
+def actualizar_catalogo_express(
+    datos: schemas.ExpressCatalogUpdate,
+    db: Session = Depends(get_db),
+    admin: models.Usuario = Depends(auth.get_current_admin)
+):
+    config = db.query(models.Configuracion).first()
+    
+    if datos.express_apple is not None:
+        config.express_apple = datos.express_apple
+    if datos.express_samsung is not None:
+        config.express_samsung = datos.express_samsung
         
     db.commit()
     db.refresh(config)

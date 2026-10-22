@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
   <link rel="apple-touch-icon" href="favicon.png">
   
-  <link rel="stylesheet" href="css/styles.css?v=26">
+  <link rel="stylesheet" href="css/styles.css?v=27">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -233,18 +233,6 @@
     </svg>
   </a>
 
-  <!-- TOAST: NOTIFICACIÓN INTELIGENTE -->
-  <div id="smartToast" class="smart-toast">
-    <div class="toast-header">
-      <span class="toast-title">⚡ Inventario Extendido</span>
-      <button class="toast-close" id="closeToastBtn">&times;</button>
-    </div>
-    <p class="toast-body">Tenemos muchos más modelos de Samsung y iPhone disponibles para entrega inmediata.</p>
-    <button class="btn btn-sm btn-primary btn-full" id="openExpressCatalogBtn" style="margin-top: 10px;">
-      Ver Lista de Precios
-    </button>
-  </div>
-
   <!-- MODAL: CATÁLOGO EXPRESS (LISTA DE TEXTO) -->
   <div id="expressCatalogModal" class="modal-backdrop" style="z-index: 2500;">
     <div class="modal-content" style="max-width: 850px;">
@@ -257,108 +245,7 @@
         </div>
 
         <div class="express-lists-grid">
-          <!-- COLUMNA APPLE -->
-          <div class="brand-list-col">
-            <h3 class="brand-list-title"> APPLE iPHONE</h3>
-            
-            <div class="series-group"><div class="series-name">Serie iPhone 12</div>
-              <div class="price-row"><span>iPhone 12 (64GB)</span><span class="price-tag">$255</span></div>
-              <div class="price-row"><span>iPhone 12 (128GB)</span><span class="price-tag">$285</span></div>
-              <div class="price-row"><span>iPhone 12 Pro (128GB)</span><span class="price-tag">$320</span></div>
-              <div class="price-row"><span>iPhone 12 Pro Max (128GB)</span><span class="price-tag">$405</span></div>
-              <div class="price-row"><span>iPhone 12 Pro Max (256GB)</span><span class="price-tag">$420</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie iPhone 13</div>
-              <div class="price-row"><span>iPhone 13 (128GB)</span><span class="price-tag">$340</span></div>
-              <div class="price-row"><span>iPhone 13 (256GB)</span><span class="price-tag">$370</span></div>
-              <div class="price-row"><span>iPhone 13 Pro (128GB)</span><span class="price-tag">$430</span></div>
-              <div class="price-row"><span>iPhone 13 Pro (256GB)</span><span class="price-tag">$450</span></div>
-              <div class="price-row"><span>iPhone 13 Pro Max (128GB)</span><span class="price-tag">$485</span></div>
-              <div class="price-row"><span>iPhone 13 Pro Max (256GB)</span><span class="price-tag">$535</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie iPhone 14</div>
-              <div class="price-row"><span>iPhone 14 (128GB)</span><span class="price-tag">$385</span></div>
-              <div class="price-row"><span>iPhone 14 Pro (128GB)</span><span class="price-tag">$490</span></div>
-              <div class="price-row"><span>iPhone 14 Pro (256GB)</span><span class="price-tag">$535</span></div>
-              <div class="price-row"><span>iPhone 14 Pro Max (128GB)</span><span class="price-tag">$565</span></div>
-              <div class="price-row"><span>iPhone 14 Pro Max (256GB)</span><span class="price-tag">$600</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie iPhone 15</div>
-              <div class="price-row"><span>iPhone 15 (128GB)</span><span class="price-tag">$480</span></div>
-              <div class="price-row"><span>iPhone 15 (256GB)</span><span class="price-tag">$520</span></div>
-              <div class="price-row"><span>iPhone 15 Pro (128GB)</span><span class="price-tag">$630</span></div>
-              <div class="price-row"><span>iPhone 15 Pro (256GB)</span><span class="price-tag">$670</span></div>
-              <div class="price-row"><span>iPhone 15 Pro Max (256GB)</span><span class="price-tag">$700</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie iPhone 16</div>
-              <div class="price-row"><span>iPhone 16 (128GB)</span><span class="price-tag">$630</span></div>
-              <div class="price-row"><span>iPhone 16 (256GB)</span><span class="price-tag">$670</span></div>
-              <div class="price-row"><span>iPhone 16 Pro (128GB)</span><span class="price-tag">$760</span></div>
-              <div class="price-row"><span>iPhone 16 Pro (256GB)</span><span class="price-tag">$799</span></div>
-              <div class="price-row"><span>iPhone 16 Pro Max (256GB)</span><span class="price-tag">$870</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie iPhone 17</div>
-              <div class="price-row"><span>iPhone 17 Pro (256GB)</span><span class="price-tag">$1100</span></div>
-              <div class="price-row"><span>iPhone 17 Pro (512GB)</span><span class="price-tag">$1250</span></div>
-              <div class="price-row"><span>iPhone 17 Pro Max (256GB)</span><span class="price-tag">$1210</span></div>
-              <div class="price-row"><span>iPhone 17 Pro Max (1TB)</span><span class="price-tag">$1400</span></div>
-            </div>
-          </div>
-
-          <!-- COLUMNA SAMSUNG -->
-          <div class="brand-list-col">
-            <h3 class="brand-list-title" style="color: #60a5fa;">📱 SAMSUNG GALAXY</h3>
-            
-            <div class="series-group"><div class="series-name">Serie Galaxy S22</div>
-              <div class="price-row"><span>Galaxy S22 (128GB)</span><span class="price-tag">$245</span></div>
-              <div class="price-row"><span>Galaxy S22 (256GB)</span><span class="price-tag">$280</span></div>
-              <div class="price-row"><span>Galaxy S22 Plus (128GB)</span><span class="price-tag">$280</span></div>
-              <div class="price-row"><span>Galaxy S22 Plus (256GB)</span><span class="price-tag">$310</span></div>
-              <div class="price-row"><span>Galaxy S22 Ultra (128GB)</span><span class="price-tag">$410</span></div>
-              <div class="price-row"><span>Galaxy S22 Ultra (256GB)</span><span class="price-tag">$440</span></div>
-              <div class="price-row"><span>Galaxy S22 Ultra (512GB)</span><span class="price-tag">$470</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie Galaxy S23</div>
-              <div class="price-row"><span>Galaxy S23 FE (128GB)</span><span class="price-tag">$320</span></div>
-              <div class="price-row"><span>Galaxy S23 (128GB)</span><span class="price-tag">$350</span></div>
-              <div class="price-row"><span>Galaxy S23 (256GB)</span><span class="price-tag">$375</span></div>
-              <div class="price-row"><span>Galaxy S23 Plus (256GB)</span><span class="price-tag">$410</span></div>
-              <div class="price-row"><span>Galaxy S23 Ultra (256GB)</span><span class="price-tag">$550</span></div>
-              <div class="price-row"><span>Galaxy S23 Ultra (512GB)</span><span class="price-tag">$580</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie Galaxy S24</div>
-              <div class="price-row"><span>Galaxy S24 FE (128GB)</span><span class="price-tag">$420</span></div>
-              <div class="price-row"><span>Galaxy S24 (128GB)</span><span class="price-tag">$470</span></div>
-              <div class="price-row"><span>Galaxy S24 (256GB)</span><span class="price-tag">$490</span></div>
-              <div class="price-row"><span>Galaxy S24 Plus (256GB)</span><span class="price-tag">$550</span></div>
-              <div class="price-row"><span>Galaxy S24 Ultra (256GB)</span><span class="price-tag">$700</span></div>
-              <div class="price-row"><span>Galaxy S24 Ultra (512GB)</span><span class="price-tag">$760</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie Galaxy S25</div>
-              <div class="price-row"><span>Galaxy S25 (128GB)</span><span class="price-tag">$580</span></div>
-              <div class="price-row"><span>Galaxy S25 (256GB)</span><span class="price-tag">$660</span></div>
-              <div class="price-row"><span>Galaxy S25 Plus (256GB)</span><span class="price-tag">$699</span></div>
-              <div class="price-row"><span>Galaxy S25 Ultra (256GB)</span><span class="price-tag">$830</span></div>
-              <div class="price-row"><span>Galaxy S25 Ultra (512GB)</span><span class="price-tag">$865</span></div>
-            </div>
-
-            <div class="series-group"><div class="series-name">Serie Galaxy S26</div>
-              <div class="price-row"><span>Galaxy S26 (256GB)</span><span class="price-tag">$680</span></div>
-              <div class="price-row"><span>Galaxy S26 (512GB)</span><span class="price-tag">$720</span></div>
-              <div class="price-row"><span>Galaxy S26 Plus (256GB)</span><span class="price-tag">$740</span></div>
-              <div class="price-row"><span>Galaxy S26 Plus (512GB)</span><span class="price-tag">$790</span></div>
-              <div class="price-row"><span>Galaxy S26 Ultra (256GB)</span><span class="price-tag">$1100</span></div>
-              <div class="price-row"><span>Galaxy S26 Ultra (512GB)</span><span class="price-tag">$1200</span></div>
-            </div>
-          </div>
+          <!-- LOS DATOS SE RENDERIZAN AQUÍ VÍA JS DESDE LA BASE DE DATOS -->
         </div>
 
         <a href="https://wa.me/593992641656?text=Hola%20GX%20Store%2C%20vi%20su%20cat%C3%A1logo%20Express.%20Me%20interesa%20solicitar%20fotos%20reales%20y%20porcentaje%20de%20bater%C3%ADa%20del%20modelo..." target="_blank" rel="noopener" class="btn btn-whatsapp-large btn-full" style="margin-top: 2rem;">
@@ -369,6 +256,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=23"></script>
+  <script src="js/app.js?v=27"></script>
 </body>
 </html>

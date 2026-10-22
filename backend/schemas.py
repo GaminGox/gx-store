@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 
 class Token(BaseModel):
@@ -33,6 +33,8 @@ class ConfiguracionOut(BaseModel):
     mensaje_anuncio: str
     promo_flash_activo: Optional[bool] = False
     promo_flash_texto: Optional[str] = None
+    express_apple: Optional[list] = None
+    express_samsung: Optional[list] = None
 
     class Config:
         from_attributes = True
@@ -43,3 +45,8 @@ class ConfiguracionUpdate(BaseModel):
     mensaje_anuncio: str
     promo_flash_activo: Optional[bool] = False
     promo_flash_texto: Optional[str] = None
+
+# Nuevo esquema exclusivo para actualizar la lista de precios express
+class ExpressCatalogUpdate(BaseModel):
+    express_apple: Optional[list] = None
+    express_samsung: Optional[list] = None

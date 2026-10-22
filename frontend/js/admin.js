@@ -20,6 +20,7 @@ const btnCancelEdit = document.getElementById("btnCancelEdit");
 const pId = document.getElementById("p_id");
 const uploadLabel = document.getElementById("uploadLabel");
 
+// CONFIGURACIÓN
 const configForm = document.getElementById("configForm");
 const cWhatsapp = document.getElementById("c_whatsapp");
 const cTiktok = document.getElementById("c_tiktok");
@@ -27,6 +28,12 @@ const cMensaje = document.getElementById("c_mensaje");
 const cPromoActivo = document.getElementById("c_promo_activo");
 const cPromoTexto = document.getElementById("c_promo_texto");
 const btnSubmitConfig = document.getElementById("btnSubmitConfig");
+
+// CATÁLOGO EXPRESS
+const expressCatalogForm = document.getElementById("expressCatalogForm");
+const expressApple = document.getElementById("express_apple");
+const expressSamsung = document.getElementById("express_samsung");
+const btnSubmitExpress = document.getElementById("btnSubmitExpress");
 
 const pImagenes = document.getElementById("p_imagenes");
 const previewsContainer = document.getElementById("previewsContainer");
@@ -234,7 +241,7 @@ btnCancelEdit.addEventListener("click", () => {
 function resetFormState() {
   productForm.reset();
   pId.value = "";
-  formTitle.textContent = "Ingresar Celular al Catálogo";
+  formTitle.textContent = "Ingresar Celular al Catálogo Principal (Con fotos)";
   btnSubmitProduct.textContent = "Guardar y Publicar en GX Store";
   editModeIndicator.style.display = "none";
   uploadLabel.textContent = "Fotografías del Celular *";
@@ -334,7 +341,7 @@ window.deleteProduct = async function(id) {
   }
 };
 
-// --- LÓGICA DE CONFIGURACIÓN DE TIENDA ---
+// --- LÓGICA DE CONFIGURACIÓN DE TIENDA Y CATÁLOGO EXPRESS ---
 async function loadStoreConfig() {
   try {
     const res = await fetch(`${API_URL}/configuracion`);
@@ -345,6 +352,14 @@ async function loadStoreConfig() {
       cMensaje.value = config.mensaje_anuncio || "";
       cPromoActivo.checked = config.promo_flash_activo || false;
       cPromoTexto.value = config.promo_flash_texto || "";
+      
+      // Cargar Catálogo Express
+      if (config.express_apple) {
+        expressApple.value = JSON.stringify(config.express_apple, null, 2);
+      }
+      if (config.express_samsung) {
+        expressSamsung.value = JSON.stringify(config.express_samsung, null, 2);
+      }
     }
   } catch (error) {
     console.error("No se pudo cargar la configuración:", error);
@@ -384,6 +399,49 @@ configForm.addEventListener("submit", async (e) => {
   } finally {
     btnSubmitConfig.disabled = false;
     btnSubmitConfig.textContent = "Guardar Configuración General";
+  }
+});
+
+expressCatalogForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const token = getToken();
+  if (!token) return checkAuthState();
+
+  let appleData, samsungData;
+
+  try {
+    appleData = JSON.parse(expressApple.value);
+    samsungData = JSON.parse(expressSamsung.value);
+  } catch (err) {
+    showToast("Error de formato: Asegúrate de no borrar las comillas ni las llaves del texto JSON.", true);
+    return;
+  }
+
+  btnSubmitExpress.disabled = true;
+  btnSubmitExpress.textContent = "Guardando Catálogo Express...";
+
+  const expressData = {
+    express_apple: appleData,
+    express_samsung: samsungData
+  };
+
+  try {
+    const res = await fetch(`${API_URL}/configuracion/express`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(expressData)
+    });
+
+    if (!res.ok) throw new Error("Error al guardar Catálogo Express");
+    showToast("Catálogo Express actualizado. Los cambios ya se reflejan en la página principal.");
+  } catch (error) {
+    showToast(error.message, true);
+  } finally {
+    btnSubmitExpress.disabled = false;
+    btnSubmitExpress.textContent = "Actualizar Precios del Catálogo Express";
   }
 });
 
