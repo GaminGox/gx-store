@@ -17,9 +17,18 @@ from utils import save_and_optimize_image, remove_multiple_images
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     os.makedirs("uploads", exist_ok=True)
+    
+    # --- FIX DEFINITIVO: Borrar la tabla de configuración trabada y reconstruirla limpia ---
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("DROP TABLE IF EXISTS configuracion;"))
+            conn.commit()
+    except Exception:
+        pass
+        
     models.Base.metadata.create_all(bind=engine)
     
-    # Auto-migraciones seguras para productos
+    # Auto-migraciones para productos (No tocamos los celulares)
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN badge VARCHAR;"))
@@ -30,36 +39,6 @@ async def lifespan(app: FastAPI):
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN clics_whatsapp INTEGER DEFAULT 0;"))
-            conn.commit()
-    except Exception:
-        pass
-        
-    # Auto-migraciones para configuracion
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_activo BOOLEAN DEFAULT 0;"))
-            conn.commit()
-    except Exception:
-        pass
-
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE configuracion ADD COLUMN promo_flash_texto VARCHAR DEFAULT '⚡ ¡OFERTA FLASH! Envíos GRATIS a todo el Ecuador comprando hoy. ⚡';"))
-            conn.commit()
-    except Exception:
-        pass
-
-    # Auto-migración segura para el Catálogo Express (Usando TEXT para evitar conflictos en SQLite)
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_apple TEXT;"))
-            conn.commit()
-    except Exception:
-        pass
-
-    try:
-        with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_samsung TEXT;"))
             conn.commit()
     except Exception:
         pass
@@ -82,7 +61,7 @@ async def lifespan(app: FastAPI):
             db.commit()
             config = default_config
 
-        # Datos por defecto si las listas están vacías
+        # Rellenar con los datos por defecto en la tabla nueva
         if not config.express_apple:
             config.express_apple = [
                 {"serie": "Serie iPhone 12", "modelo": "iPhone 12 (64GB)", "precio": 255},
@@ -158,7 +137,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="GX Store API",
-    version="2.3.0",
+    version="2.4.0",
     lifespan=lifespan
 )
 
