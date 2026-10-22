@@ -1,6 +1,6 @@
 import os
 from contextlib import asynccontextmanager
-from typing import List, Optional
+from typing import List, Optional, Any
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     os.makedirs("uploads", exist_ok=True)
     models.Base.metadata.create_all(bind=engine)
     
-    # Auto-migraciones para productos
+    # Auto-migraciones seguras para productos
     try:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE productos ADD COLUMN badge VARCHAR;"))
@@ -49,17 +49,17 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
-    # Auto-migración para el Catálogo Express
+    # Auto-migración segura para el Catálogo Express (Usando TEXT para evitar conflictos en SQLite)
     try:
         with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_apple JSON;"))
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_apple TEXT;"))
             conn.commit()
     except Exception:
         pass
 
     try:
         with engine.connect() as conn:
-            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_samsung JSON;"))
+            conn.execute(text("ALTER TABLE configuracion ADD COLUMN express_samsung TEXT;"))
             conn.commit()
     except Exception:
         pass
@@ -80,13 +80,85 @@ async def lifespan(app: FastAPI):
             default_config = models.Configuracion()
             db.add(default_config)
             db.commit()
+            config = default_config
+
+        # Datos por defecto si las listas están vacías
+        if not config.express_apple:
+            config.express_apple = [
+                {"serie": "Serie iPhone 12", "modelo": "iPhone 12 (64GB)", "precio": 255},
+                {"serie": "Serie iPhone 12", "modelo": "iPhone 12 (128GB)", "precio": 285},
+                {"serie": "Serie iPhone 12", "modelo": "iPhone 12 Pro (128GB)", "precio": 320},
+                {"serie": "Serie iPhone 12", "modelo": "iPhone 12 Pro Max (128GB)", "precio": 405},
+                {"serie": "Serie iPhone 12", "modelo": "iPhone 12 Pro Max (256GB)", "precio": 420},
+                {"serie": "Serie iPhone 13", "modelo": "iPhone 13 (128GB)", "precio": 340},
+                {"serie": "Serie iPhone 13", "modelo": "iPhone 13 (256GB)", "precio": 370},
+                {"serie": "Serie iPhone 13", "modelo": "iPhone 13 Pro (128GB)", "precio": 430},
+                {"serie": "Serie iPhone 13", "modelo": "iPhone 13 Pro (256GB)", "precio": 450},
+                {"serie": "Serie iPhone 13", "modelo": "iPhone 13 Pro Max (128GB)", "precio": 485},
+                {"serie": "Serie iPhone 13", "modelo": "iPhone 13 Pro Max (256GB)", "precio": 535},
+                {"serie": "Serie iPhone 14", "modelo": "iPhone 14 (128GB)", "precio": 385},
+                {"serie": "Serie iPhone 14", "modelo": "iPhone 14 Pro (128GB)", "precio": 490},
+                {"serie": "Serie iPhone 14", "modelo": "iPhone 14 Pro (256GB)", "precio": 535},
+                {"serie": "Serie iPhone 14", "modelo": "iPhone 14 Pro Max (128GB)", "precio": 565},
+                {"serie": "Serie iPhone 14", "modelo": "iPhone 14 Pro Max (256GB)", "precio": 600},
+                {"serie": "Serie iPhone 15", "modelo": "iPhone 15 (128GB)", "precio": 480},
+                {"serie": "Serie iPhone 15", "modelo": "iPhone 15 (256GB)", "precio": 520},
+                {"serie": "Serie iPhone 15", "modelo": "iPhone 15 Pro (128GB)", "precio": 630},
+                {"serie": "Serie iPhone 15", "modelo": "iPhone 15 Pro (256GB)", "precio": 670},
+                {"serie": "Serie iPhone 15", "modelo": "iPhone 15 Pro Max (256GB)", "precio": 700},
+                {"serie": "Serie iPhone 16", "modelo": "iPhone 16 (128GB)", "precio": 630},
+                {"serie": "Serie iPhone 16", "modelo": "iPhone 16 (256GB)", "precio": 670},
+                {"serie": "Serie iPhone 16", "modelo": "iPhone 16 Pro (128GB)", "precio": 760},
+                {"serie": "Serie iPhone 16", "modelo": "iPhone 16 Pro (256GB)", "precio": 799},
+                {"serie": "Serie iPhone 16", "modelo": "iPhone 16 Pro Max (256GB)", "precio": 870},
+                {"serie": "Serie iPhone 17", "modelo": "iPhone 17 Pro (256GB)", "precio": 1100},
+                {"serie": "Serie iPhone 17", "modelo": "iPhone 17 Pro (512GB)", "precio": 1250},
+                {"serie": "Serie iPhone 17", "modelo": "iPhone 17 Pro Max (256GB)", "precio": 1210},
+                {"serie": "Serie iPhone 17", "modelo": "iPhone 17 Pro Max (1TB)", "precio": 1400}
+            ]
+            db.commit()
+
+        if not config.express_samsung:
+            config.express_samsung = [
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 (128GB)", "precio": 245},
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 (256GB)", "precio": 280},
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 Plus (128GB)", "precio": 280},
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 Plus (256GB)", "precio": 310},
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 Ultra (128GB)", "precio": 410},
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 Ultra (256GB)", "precio": 440},
+                {"serie": "Serie Galaxy S22", "modelo": "Galaxy S22 Ultra (512GB)", "precio": 470},
+                {"serie": "Serie Galaxy S23", "modelo": "Galaxy S23 FE (128GB)", "precio": 320},
+                {"serie": "Serie Galaxy S23", "modelo": "Galaxy S23 (128GB)", "precio": 350},
+                {"serie": "Serie Galaxy S23", "modelo": "Galaxy S23 (256GB)", "precio": 375},
+                {"serie": "Serie Galaxy S23", "modelo": "Galaxy S23 Plus (256GB)", "precio": 410},
+                {"serie": "Serie Galaxy S23", "modelo": "Galaxy S23 Ultra (256GB)", "precio": 550},
+                {"serie": "Serie Galaxy S23", "modelo": "Galaxy S23 Ultra (512GB)", "precio": 580},
+                {"serie": "Serie Galaxy S24", "modelo": "Galaxy S24 FE (128GB)", "precio": 420},
+                {"serie": "Serie Galaxy S24", "modelo": "Galaxy S24 (128GB)", "precio": 470},
+                {"serie": "Serie Galaxy S24", "modelo": "Galaxy S24 (256GB)", "precio": 490},
+                {"serie": "Serie Galaxy S24", "modelo": "Galaxy S24 Plus (256GB)", "precio": 550},
+                {"serie": "Serie Galaxy S24", "modelo": "Galaxy S24 Ultra (256GB)", "precio": 700},
+                {"serie": "Serie Galaxy S24", "modelo": "Galaxy S24 Ultra (512GB)", "precio": 760},
+                {"serie": "Serie Galaxy S25", "modelo": "Galaxy S25 (128GB)", "precio": 580},
+                {"serie": "Serie Galaxy S25", "modelo": "Galaxy S25 (256GB)", "precio": 660},
+                {"serie": "Serie Galaxy S25", "modelo": "Galaxy S25 Plus (256GB)", "precio": 699},
+                {"serie": "Serie Galaxy S25", "modelo": "Galaxy S25 Ultra (256GB)", "precio": 830},
+                {"serie": "Serie Galaxy S25", "modelo": "Galaxy S25 Ultra (512GB)", "precio": 865},
+                {"serie": "Serie Galaxy S26", "modelo": "Galaxy S26 (256GB)", "precio": 680},
+                {"serie": "Serie Galaxy S26", "modelo": "Galaxy S26 (512GB)", "precio": 720},
+                {"serie": "Serie Galaxy S26", "modelo": "Galaxy S26 Plus (256GB)", "precio": 740},
+                {"serie": "Serie Galaxy S26", "modelo": "Galaxy S26 Plus (512GB)", "precio": 790},
+                {"serie": "Serie Galaxy S26", "modelo": "Galaxy S26 Ultra (256GB)", "precio": 1100},
+                {"serie": "Serie Galaxy S26", "modelo": "Galaxy S26 Ultra (512GB)", "precio": 1200}
+            ]
+            db.commit()
     finally:
         db.close()
     yield
 
 app = FastAPI(
     title="GX Store API",
-    version="2.2.0",
+    version="2.3.0",
     lifespan=lifespan
 )
 
