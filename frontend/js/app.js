@@ -446,6 +446,11 @@ window.addEventListener("keydown", (e) => {
     }
   }
 
+  const expressModal = document.getElementById("expressCatalogModal");
+  if (expressModal && expressModal.style.display === "flex" && e.key === "Escape") {
+    expressModal.style.display = "none";
+  }
+
   if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
     window.location.href = "admin.html";
   }
@@ -489,7 +494,7 @@ function checkDeepLink() {
 }
 
 // ==========================================
-// RENDERIZADO DINÁMICO DEL CATÁLOGO EXPRESS
+// RENDERIZADO DINÁMICO DE PRECIOS REFERENCIALES
 // ==========================================
 function renderExpressCatalog() {
   const expressContainer = document.querySelector('.express-lists-grid');
@@ -498,17 +503,17 @@ function renderExpressCatalog() {
   const appleData = globalStoreConfig.express_apple || [];
   const samsungData = globalStoreConfig.express_samsung || [];
 
-  // Si no hay datos configurados, usar un estado vacío elegante
   if (appleData.length === 0 && samsungData.length === 0) {
-    expressContainer.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">El catálogo express se está actualizando. Por favor revisa más tarde.</p>`;
+    expressContainer.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">La lista de precios referenciales se está actualizando. Por favor revisa más tarde.</p>`;
     return;
   }
 
-  // Helper para agrupar los modelos por "serie" y renderizar bloques HTML
-  const buildColumnHTML = (title, icon, color, data) => {
+  const appleSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: -2px; margin-right: 4px;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.96 6.32c.68-.83 1.14-1.98 1.01-3.13-.98.04-2.16.65-2.86 1.48-.63.73-1.18 1.9-1.03 3.02 1.09.08 2.2-.55 2.88-1.37z"/></svg>`;
+  const samsungSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`;
+
+  const buildColumnHTML = (title, iconHtml, color, data) => {
     if (!data || data.length === 0) return '';
     
-    // Agrupar por serie
     const seriesGrouped = data.reduce((acc, item) => {
       if (!acc[item.serie]) acc[item.serie] = [];
       acc[item.serie].push(item);
@@ -517,13 +522,20 @@ function renderExpressCatalog() {
 
     let html = `
       <div class="brand-list-col">
-        <h3 class="brand-list-title" style="color: ${color};">${icon} ${title}</h3>
+        <h3 class="brand-list-title" style="color: ${color};">${iconHtml}${title}</h3>
     `;
 
     for (const serie in seriesGrouped) {
       html += `<div class="series-group"><div class="series-name">${serie}</div>`;
       seriesGrouped[serie].forEach(item => {
-        html += `<div class="price-row"><span>${item.modelo}</span><span class="price-tag">$${item.precio}</span></div>`;
+        const waMsg = encodeURIComponent(`Hola GX Store 🇪🇨, vi su lista de precios referenciales. Me interesa cotizar el ${item.modelo} ($${item.precio}). ¿Tienen disponible?`);
+        const waUrl = `https://wa.me/${globalStoreConfig.whatsapp}?text=${waMsg}`;
+        html += `
+          <a href="${waUrl}" target="_blank" rel="noopener" class="price-row price-row-link" title="Cotizar ${item.modelo} por WhatsApp">
+            <span>${item.modelo}</span>
+            <span class="price-tag">$${item.precio}</span>
+          </a>
+        `;
       });
       html += `</div>`;
     }
@@ -532,8 +544,8 @@ function renderExpressCatalog() {
   };
 
   expressContainer.innerHTML = 
-    buildColumnHTML('APPLE iPHONE', '', 'var(--text-main)', appleData) + 
-    buildColumnHTML('SAMSUNG GALAXY', '📱', '#60a5fa', samsungData);
+    buildColumnHTML('APPLE iPHONE', appleSvg, 'var(--text-main)', appleData) + 
+    buildColumnHTML('SAMSUNG GALAXY', samsungSvg, '#60a5fa', samsungData);
 }
 
 // ==========================================
@@ -545,25 +557,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const expressCatalogModal = document.getElementById('expressCatalogModal');
   const closeExpressModalBtn = document.getElementById('closeExpressModalBtn');
+  const closeExpressBottomBtn = document.getElementById('closeExpressBottomBtn');
 
-  // Abre el Modal Gigante a pantalla completa automáticamente medio segundo después de entrar
-  if(expressCatalogModal) {
+  const closeExpress = () => {
+    if (expressCatalogModal) expressCatalogModal.style.display = 'none';
+  };
+
+  // No abrir el modal si el usuario entró con un link directo a un producto
+  const params = new URLSearchParams(window.location.search);
+  const hasDeepLink = params.has("p") || params.has("id");
+
+  if (expressCatalogModal && !hasDeepLink) {
     setTimeout(() => {
-      expressCatalogModal.style.display = 'flex'; 
-    }, 2500);
+      expressCatalogModal.style.display = 'flex';
+    }, 2000);
   }
 
-  // Cerrar con la X
-  if(closeExpressModalBtn) {
-    closeExpressModalBtn.addEventListener('click', () => {
-      expressCatalogModal.style.display = 'none';
-    });
+  if (closeExpressModalBtn) {
+    closeExpressModalBtn.addEventListener('click', closeExpress);
   }
 
-  // Cerrar haciendo click afuera de la caja
+  if (closeExpressBottomBtn) {
+    closeExpressBottomBtn.addEventListener('click', closeExpress);
+  }
+
   window.addEventListener('click', (e) => {
     if (e.target === expressCatalogModal) {
-      expressCatalogModal.style.display = 'none';
+      closeExpress();
     }
   });
 });
